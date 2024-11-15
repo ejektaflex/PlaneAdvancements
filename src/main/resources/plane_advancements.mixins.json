@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "com.nettakrim.plane_advancements.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"client": [
+		"AdvancementPositionerMixin",
+		"AdvancementTabMixin",
+		"AdvancementWidgetAccessor"
+	]
+}

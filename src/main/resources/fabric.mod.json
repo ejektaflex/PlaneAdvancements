@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "plane_advancements",
+	"version": "${version}",
+	"name": "Plane Advancements",
+	"description": "Rearranges Advancements to make better use of the 2D plane they're on!",
+	"authors": [
+		"Nettakrim"
+	],
+	"contact": {
+		"sources": "https://github.com/Nettakrim/Plane-Advancements"
+	},
+	"license": "LGPL-3.0",
+	"icon": "assets/plane_advancements/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+          "com.nettakrim.plane_advancements.PlaneAdvancementsClient"
+		]
+	},
+	"mixins": [
+		"plane_advancements.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.3",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
