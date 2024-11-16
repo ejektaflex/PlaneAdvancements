@@ -2,7 +2,6 @@ package com.nettakrim.plane_advancements;
 
 import net.fabricmc.api.ClientModInitializer;
 
-import org.joml.Vector2f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +28,42 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	}
 
 	public static void calculateGrid(List<AdvancementCluster> clusters) {
-		Vector2f pos = new Vector2f(0,0);
-		for (AdvancementCluster cluster : clusters) {
-			cluster.pos.set(pos);
-			pos.add(cluster.size);
+		//https://www.david-colson.com/2020/03/10/exploring-rect-packing.html
+		clusters.sort((a, b) -> {
+			int i = Float.compare(b.size.y, a.size.y);
+			return i == 0 ? Float.compare(b.size.x, a.size.x) : i;
+		});
+
+		float xPos = 0;
+		float yPos = 0;
+		float largestHThisRow = 0;
+
+		// Loop over all the rectangles
+		for (AdvancementCluster cluster : clusters)
+		{
+			// If this rectangle will go past the width of the image
+			// Then loop around to next row, using the largest height from the previous row
+			if ((xPos + cluster.size.x) > 10)
+			{
+				yPos += largestHThisRow;
+				xPos = 0;
+				largestHThisRow = 0;
+			}
+
+			// If we go off the bottom edge of the image, then we've failed
+			if ((yPos + cluster.size.y) > 10)
+				break;
+
+			// This is the position of the rectangle
+			cluster.pos.x = xPos;
+			cluster.pos.y = yPos;
+
+			// Move along to the next spot in the row
+			xPos += cluster.size.x;
+
+			// Just saving the largest height in the new row
+			if (cluster.size.y > largestHThisRow)
+				largestHThisRow = cluster.size.y;
 		}
 	}
 
