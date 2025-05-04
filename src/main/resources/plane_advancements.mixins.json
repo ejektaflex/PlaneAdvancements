@@ -1,18 +1,18 @@
 {
-	"required": true,
-	"package": "com.nettakrim.plane_advancements.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"plugin": "com.nettakrim.plane_advancements.PlaneAdvancementsMixinPlugin",
-	"mixins": [
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"client": [
-		"AdvancementPositionerMixin",
-		"AdvancementTabMixin",
-		"AdvancementWidgetAccessor",
-		"BetterAdvancementWidgetAccessor",
-		"BetterAdvancementWidgetMixin"
-	]
+  "required": true,
+  "package": "com.nettakrim.plane_advancements.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.nettakrim.plane_advancements.PlaneAdvancementsMixinPlugin",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "AdvancementPositionerMixin",
+    "AdvancementsScreenMixin",
+    "AdvancementTabAccessor",
+    "AdvancementTabMixin",
+    "AdvancementWidgetMixin",
+    "BetterAdvancementWidgetAccessor",
+    "BetterAdvancementWidgetMixin"
+  ]
 }
