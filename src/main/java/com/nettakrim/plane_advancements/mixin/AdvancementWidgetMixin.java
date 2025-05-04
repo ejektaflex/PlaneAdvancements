@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(AdvancementWidget.class)
-public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
+public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterface {
     @Shadow @Final @Mutable
     private int x;
     @Shadow @Final @Mutable
@@ -31,6 +31,9 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
     @Shadow @Final private List<AdvancementWidget> children;
 
     @Shadow @Nullable private AdvancementWidget parent;
+
+    @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
+
     @Unique
     Vector2f pos;
 
@@ -85,7 +88,7 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
 
     @Override
     public boolean planeAdvancements$isHovering(int mouseX, int mouseY) {
-        return mouseX >= x && mouseX <= x + 26 && mouseY >= y && mouseY <= y + 26;
+        return shouldRender(0, 0, mouseX, mouseY);
     }
 
     @Override
