@@ -2,6 +2,11 @@ package com.nettakrim.plane_advancements;
 
 import net.fabricmc.api.ClientModInitializer;
 
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +18,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static boolean straightLines = false;
+	public static LineType lineType = LineType.SMART;
 
 	@Override
 	public void onInitializeClient() {
@@ -76,5 +81,53 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 			clusters.add(new AdvancementCluster(positioner));
 		}
 		return clusters;
+	}
+
+	public static void renderLines(DrawContext context, int x, int y, int startX, int startY, int endX, int endY, boolean border) {
+		int offsetX = endX-startX;
+		int offsetY = endY-startY;
+
+		MatrixStack matrixStack = context.getMatrices();
+		matrixStack.push();
+		matrixStack.translate(x+startX + 16.5, y+startY + 13.5, 0);
+
+		if (lineType == LineType.ROTATED) {
+			matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));
+			int distance = MathHelper.floor(MathHelper.sqrt(offsetX*offsetX + offsetY*offsetY));
+			if (border) {
+				context.drawHorizontalLine(0, distance, -1, -16777216);
+				context.drawHorizontalLine(0, distance, 1, -16777216);
+			} else {
+				context.drawHorizontalLine(0, distance, 0, -1);
+			}
+		} else {
+			int absX = MathHelper.abs(offsetX);
+			int absY = MathHelper.abs(offsetY);
+			boolean isX = absX < absY;
+			int xPos = isX ? (absX < 15 ? offsetX / 2 : offsetX) : 0;
+			int yPos = !isX ? (absY < 15 ? offsetY / 2 : offsetY) : 0;
+			int xLength = absX < 15 ? 0 : offsetX;
+			int yLength = absY < 15 ? 0 : offsetY;
+
+			if (border) {
+				offsetX /= absX == 0 ? 1 : absX;
+				offsetY /= absY == 0 ? 1 : absY;
+				context.drawHorizontalLine(-offsetX, xLength+offsetX, yPos-1, -16777216);
+				context.drawHorizontalLine(-offsetX, xLength+offsetX, yPos+1, -16777216);
+				context.drawVerticalLine(xPos-1, yLength+offsetY, -offsetY, -16777216);
+				context.drawVerticalLine(xPos+1, yLength+offsetY, -offsetY, -16777216);
+			} else {
+				context.drawHorizontalLine(0, xLength, yPos, -1);
+				context.drawVerticalLine(xPos, yLength, 0, -1);
+			}
+		}
+
+		matrixStack.pop();
+	}
+
+	public enum LineType {
+		DEFAULT,
+		SMART,
+		ROTATED
 	}
 }

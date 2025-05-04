@@ -10,11 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
-import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,46 +39,13 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
 
     @WrapMethod(method = "renderLines")
     void renderLines(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
+        if (PlaneAdvancementsClient.lineType == PlaneAdvancementsClient.LineType.DEFAULT) {
+            original.call(context, x, y, border);
+            return;
+        }
+
         if (parent != null) {
-            int offsetX = parent.getX()-this.x;
-            int offsetY = parent.getY()-this.y;
-
-            MatrixStack matrixStack = context.getMatrices();
-            matrixStack.push();
-            matrixStack.translate(x+this.x + 16.5, y+this.y + 13.5, 0);
-
-            if (PlaneAdvancementsClient.straightLines) {
-                matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));
-                int distance = MathHelper.floor(MathHelper.sqrt(offsetX*offsetX + offsetY*offsetY));
-                if (border) {
-                    context.drawHorizontalLine(0, distance, -1, -16777216);
-                    context.drawHorizontalLine(0, distance, 1, -16777216);
-                } else {
-                    context.drawHorizontalLine(0, distance, 0, -1);
-                }
-            } else {
-                int absX = MathHelper.abs(offsetX);
-                int absY = MathHelper.abs(offsetY);
-                boolean isX = absX < absY;
-                int xPos = isX ? (absX < 15 ? offsetX / 2 : offsetX) : 0;
-                int yPos = !isX ? (absY < 15 ? offsetY / 2 : offsetY) : 0;
-                int xLength = absX < 15 ? 0 : offsetX;
-                int yLength = absY < 15 ? 0 : offsetY;
-
-                if (border) {
-                    offsetX /= absX == 0 ? 1 : absX;
-                    offsetY /= absY == 0 ? 1 : absY;
-                    context.drawHorizontalLine(-offsetX, xLength+offsetX, yPos-1, -16777216);
-                    context.drawHorizontalLine(-offsetX, xLength+offsetX, yPos+1, -16777216);
-                    context.drawVerticalLine(xPos-1, yLength+offsetY, -offsetY, -16777216);
-                    context.drawVerticalLine(xPos+1, yLength+offsetY, -offsetY, -16777216);
-                } else {
-                    context.drawHorizontalLine(0, xLength, yPos, -1);
-                    context.drawVerticalLine(xPos, yLength, 0, -1);
-                }
-            }
-
-            matrixStack.pop();
+            PlaneAdvancementsClient.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border);
         }
 
         for (AdvancementWidget advancementWidget : children) {
@@ -121,7 +84,6 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
 
         Vector2f direction = new Vector2f(pos).sub(ducky.planeAdvancements$getPos());
 
-        //TODO try doing attraction as linear and repulsion as inverse square (https://en.wikipedia.org/wiki/Force-directed_graph_drawing)
         if ((other.equals(parent) || children.contains(other)) && distance > 1) {
             direction.normalize(distance*-speed);
         } else {
