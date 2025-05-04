@@ -20,6 +20,8 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static LineType lineType = LineType.SMART;
 
+	public static AdvancementWidgetInterface dragging;
+
 	@Override
 	public void onInitializeClient() {
 

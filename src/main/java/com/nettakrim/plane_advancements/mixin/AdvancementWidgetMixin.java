@@ -1,5 +1,6 @@
 package com.nettakrim.plane_advancements.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
@@ -54,6 +55,14 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
         }
     }
 
+    @ModifyReturnValue(at = @At("RETURN"), method = "shouldRender")
+    private boolean forceTooltipIfDragged(boolean original) {
+        if (PlaneAdvancementsClient.dragging != null) {
+            return PlaneAdvancementsClient.dragging == this;
+        }
+        return original;
+    }
+
     @Override
     public List<AdvancementWidget> planeAdvancements$getChildren() {
         return children;
@@ -95,7 +104,10 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
             direction.normalize(speed/Math.max(distance*distance, 0.01f));
         }
 
-        pos.add(direction);
-        ducky.planeAdvancements$getPos().sub(direction);
+        if (this != PlaneAdvancementsClient.dragging) {
+            pos.add(direction);
+        } if (ducky != PlaneAdvancementsClient.dragging) {
+            ducky.planeAdvancements$getPos().sub(direction);
+        }
     }
 }

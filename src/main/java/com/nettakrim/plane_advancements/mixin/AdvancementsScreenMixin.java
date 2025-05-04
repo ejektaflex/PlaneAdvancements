@@ -1,6 +1,7 @@
 package com.nettakrim.plane_advancements.mixin;
 
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
+import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
@@ -10,7 +11,6 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -23,15 +23,12 @@ public class AdvancementsScreenMixin extends Screen {
         super(title);
     }
 
-    @Unique
-    private AdvancementWidgetInterface dragging;
-
     @Inject(at = @At("HEAD"), method = "mouseClicked")
     void click(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        if (selectedTab == null || button != 0) {
+        if (selectedTab == null || button != 1) {
             return;
         }
-        dragging = null;
+        PlaneAdvancementsClient.dragging = null;
         AdvancementTabAccessor tabAccessor = (AdvancementTabAccessor)selectedTab;
 
         int i = (this.width - 252) / 2;
@@ -42,19 +39,27 @@ public class AdvancementsScreenMixin extends Screen {
         for (AdvancementWidget advancementWidget : ((AdvancementTabAccessor)selectedTab).getWidgets().values()) {
             AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) advancementWidget;
             if (ducky.planeAdvancements$isHovering(x, y)) {
-                dragging = ducky;
+                PlaneAdvancementsClient.dragging = ducky;
                 return;
             }
         }
     }
 
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (PlaneAdvancementsClient.dragging != null) {
+            PlaneAdvancementsClient.dragging = null;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
     @Inject(at = @At("HEAD"), method = "mouseDragged", cancellable = true)
     void drag(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
-        if (dragging == null) {
+        if (PlaneAdvancementsClient.dragging == null) {
             return;
         }
-        dragging.planeAdvancements$getPos().add((float)deltaX, (float)deltaY);
-        dragging.planeAdvancements$updatePos();
+        PlaneAdvancementsClient.dragging.planeAdvancements$getPos().add((float)deltaX, (float)deltaY);
+        PlaneAdvancementsClient.dragging.planeAdvancements$updatePos();
         cir.setReturnValue(true);
         cir.cancel();
     }
