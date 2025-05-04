@@ -70,10 +70,12 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
                 int yLength = absY < 15 ? 0 : offsetY;
 
                 if (border) {
-                    context.drawHorizontalLine(0, xLength, yPos-1, -16777216);
-                    context.drawHorizontalLine(0, xLength, yPos+1, -16777216);
-                    context.drawVerticalLine(xPos-1, yLength, 0, -16777216);
-                    context.drawVerticalLine(xPos+1, yLength, 0, -16777216);
+                    offsetX /= absX == 0 ? 1 : absX;
+                    offsetY /= absY == 0 ? 1 : absY;
+                    context.drawHorizontalLine(-offsetX, xLength+offsetX, yPos-1, -16777216);
+                    context.drawHorizontalLine(-offsetX, xLength+offsetX, yPos+1, -16777216);
+                    context.drawVerticalLine(xPos-1, yLength+offsetY, -offsetY, -16777216);
+                    context.drawVerticalLine(xPos+1, yLength+offsetY, -offsetY, -16777216);
                 } else {
                     context.drawHorizontalLine(0, xLength, yPos, -1);
                     context.drawVerticalLine(xPos, yLength, 0, -1);
@@ -121,11 +123,9 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
 
         //TODO try doing attraction as linear and repulsion as inverse square (https://en.wikipedia.org/wiki/Force-directed_graph_drawing)
         if ((other.equals(parent) || children.contains(other)) && distance > 1) {
-            direction.normalize(distance*distance*-speed);
+            direction.normalize(distance*-speed);
         } else {
-            float force = 1f/Math.max(distance, 0.01f);
-
-            direction.normalize(force*speed*0.2f);
+            direction.normalize(speed/Math.max(distance*distance, 0.01f));
         }
 
         pos.add(direction);
