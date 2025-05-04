@@ -1,8 +1,6 @@
 package com.nettakrim.plane_advancements.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
@@ -14,6 +12,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
@@ -44,8 +44,8 @@ public class AdvancementTabMixin {
         return true;
     }
 
-    @WrapMethod(method = "render")
-    private void render(DrawContext context, int x, int y, Operation<Void> original) {
+    @Inject(at = @At("HEAD"), method = "render")
+    private void render(DrawContext context, int x, int y, CallbackInfo ci) {
         boolean update = t%60 == 0;
 
         for (AdvancementWidget widgetA : widgets.values()) {
@@ -63,6 +63,8 @@ public class AdvancementTabMixin {
                 this.maxPanX = Math.max(this.maxPanX, j);
                 this.minPanY = Math.min(this.minPanY, k);
                 this.maxPanY = Math.max(this.maxPanY, l);
+            } else {
+                ducky.planeAdvancements$updatePos();
             }
         }
 
@@ -76,14 +78,12 @@ public class AdvancementTabMixin {
             maxPanY += offsetY;
             originX -= offsetX;
             originY -= offsetY;
-            x += offsetX;
-            y += offsetY;
             for (AdvancementWidget widget : widgets.values()) {
-                ((AdvancementWidgetInterface)widget).planeAdvancements$getPos().add(offsetX, offsetY);
+                AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widget;
+                ducky.planeAdvancements$getPos().add(offsetX, offsetY);
+                ducky.planeAdvancements$updatePos();
             }
         }
         t++;
-
-        original.call(context, x, y);
     }
 }

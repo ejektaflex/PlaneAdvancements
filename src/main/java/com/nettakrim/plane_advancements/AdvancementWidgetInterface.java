@@ -9,7 +9,7 @@ public interface AdvancementWidgetInterface {
     List<AdvancementWidget> planeAdvancements$getChildren();
 
     Vector2f planeAdvancements$getPos();
-    void planeAdvancements$setPos(Vector2f pos);
+    void planeAdvancements$updatePos();
 
     boolean planeAdvancements$isHovering(int mouseX, int mouseY);
 

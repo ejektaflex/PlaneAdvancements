@@ -13,6 +13,8 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	public static boolean straightLines = false;
+
 	@Override
 	public void onInitializeClient() {
 
