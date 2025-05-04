@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.spongepowered.asm.mixin.*;
@@ -65,8 +66,12 @@ public class AdvancementWidgetMixin implements AdvancementWidgetInterface {
 
     @Override
     public void planeAdvancements$updatePos() {
-        this.x = Math.round(pos.x);
-        this.y = Math.round(pos.y);
+        if (this.x != MathHelper.floor(pos.x) && this.x != MathHelper.ceil(pos.x)) {
+            this.x = Math.round(pos.x);
+        }
+        if (this.y != MathHelper.floor(pos.y) && this.y != MathHelper.ceil(pos.y)) {
+            this.y = Math.round(pos.y);
+        }
     }
 
     @Override
