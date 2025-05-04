@@ -7,6 +7,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +16,12 @@ import java.util.List;
 
 public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static final String MOD_ID = "plane_advancements";
-
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static LineType lineType = LineType.SMART;
+	private static final float springScale = 32f;
 
-	public static AdvancementWidgetInterface dragging;
+	public static AdvancementWidgetInterface draggedWidget;
 
 	@Override
 	public void onInitializeClient() {
@@ -125,6 +126,31 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		}
 
 		matrixStack.pop();
+	}
+
+	public static void applySpringForce(AdvancementWidgetInterface a, AdvancementWidgetInterface b, float attraction, float repulsion) {
+		// if the attraction force is big enough, the two advancements being attracted would collide in a single step
+		assert attraction < springScale/2f;
+
+		Vector2f direction = new Vector2f(a.planeAdvancements$getPos());
+		float distance = b.planeAdvancements$getPos().distance(direction)/springScale;
+		if (distance == 0) {
+			return;
+		}
+
+		direction.sub(b.planeAdvancements$getPos());
+
+		if (a.planeAdvancements$isConnected(b) && distance > 1) {
+			direction.normalize(distance*-attraction);
+		} else {
+			direction.normalize(repulsion/Math.max(distance*distance, 0.01f));
+		}
+
+		if (a != PlaneAdvancementsClient.draggedWidget) {
+			a.planeAdvancements$getPos().add(direction);
+		} if (b != PlaneAdvancementsClient.draggedWidget) {
+			b.planeAdvancements$getPos().sub(direction);
+		}
 	}
 
 	public enum LineType {

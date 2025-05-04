@@ -60,8 +60,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @ModifyReturnValue(at = @At("RETURN"), method = "shouldRender")
     private boolean forceTooltipIfDragged(boolean original) {
-        if (PlaneAdvancementsClient.dragging != null) {
-            return PlaneAdvancementsClient.dragging == this;
+        if (PlaneAdvancementsClient.draggedWidget != null) {
+            return PlaneAdvancementsClient.draggedWidget == this;
         }
         return original;
     }
@@ -91,26 +91,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
         return shouldRender(0, 0, mouseX, mouseY);
     }
 
-    @Override
-    public void planeAdvancements$spring(AdvancementWidget other, float speed) {
-        AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)other;
-        float distance = ducky.planeAdvancements$getPos().distance(pos)/30f;
-        if (distance == 0) {
-            return;
-        }
-
-        Vector2f direction = new Vector2f(pos).sub(ducky.planeAdvancements$getPos());
-
-        if ((other.equals(parent) || children.contains(other)) && distance > 1) {
-            direction.normalize(distance*-speed);
-        } else {
-            direction.normalize(speed/Math.max(distance*distance, 0.01f));
-        }
-
-        if (this != PlaneAdvancementsClient.dragging) {
-            pos.add(direction);
-        } if (ducky != PlaneAdvancementsClient.dragging) {
-            ducky.planeAdvancements$getPos().sub(direction);
-        }
+    public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
+        //noinspection EqualsBetweenInconvertibleTypes,SuspiciousMethodCalls
+        return other.equals(parent) || children.contains(other);
     }
 }

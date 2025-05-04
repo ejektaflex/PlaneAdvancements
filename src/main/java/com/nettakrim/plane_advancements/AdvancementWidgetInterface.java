@@ -13,5 +13,5 @@ public interface AdvancementWidgetInterface {
 
     boolean planeAdvancements$isHovering(int mouseX, int mouseY);
 
-    void planeAdvancements$spring(AdvancementWidget other, float speed);
+    boolean planeAdvancements$isConnected(AdvancementWidgetInterface other);
 }

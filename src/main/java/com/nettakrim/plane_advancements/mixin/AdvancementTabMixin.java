@@ -2,6 +2,7 @@ package com.nettakrim.plane_advancements.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
+import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
@@ -51,7 +52,7 @@ public class AdvancementTabMixin {
         for (AdvancementWidget widgetA : widgets.values()) {
             AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widgetA;
             for (AdvancementWidget widgetB : widgets.values()) {
-                ducky.planeAdvancements$spring(widgetB, 0.1f);
+                PlaneAdvancementsClient.applySpringForce(ducky, (AdvancementWidgetInterface)widgetB, 0.1f, 0.1f);
             }
 
             if (update) {

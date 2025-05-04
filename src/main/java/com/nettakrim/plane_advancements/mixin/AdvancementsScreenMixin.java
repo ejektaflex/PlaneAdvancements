@@ -28,7 +28,7 @@ public class AdvancementsScreenMixin extends Screen {
         if (selectedTab == null || button != 1) {
             return;
         }
-        PlaneAdvancementsClient.dragging = null;
+        PlaneAdvancementsClient.draggedWidget = null;
         AdvancementTabAccessor tabAccessor = (AdvancementTabAccessor)selectedTab;
 
         int i = (this.width - 252) / 2;
@@ -39,7 +39,7 @@ public class AdvancementsScreenMixin extends Screen {
         for (AdvancementWidget advancementWidget : ((AdvancementTabAccessor)selectedTab).getWidgets().values()) {
             AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) advancementWidget;
             if (ducky.planeAdvancements$isHovering(x, y)) {
-                PlaneAdvancementsClient.dragging = ducky;
+                PlaneAdvancementsClient.draggedWidget = ducky;
                 return;
             }
         }
@@ -47,19 +47,19 @@ public class AdvancementsScreenMixin extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (PlaneAdvancementsClient.dragging != null) {
-            PlaneAdvancementsClient.dragging = null;
+        if (PlaneAdvancementsClient.draggedWidget != null) {
+            PlaneAdvancementsClient.draggedWidget = null;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Inject(at = @At("HEAD"), method = "mouseDragged", cancellable = true)
     void drag(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
-        if (PlaneAdvancementsClient.dragging == null) {
+        if (PlaneAdvancementsClient.draggedWidget == null) {
             return;
         }
-        PlaneAdvancementsClient.dragging.planeAdvancements$getPos().add((float)deltaX, (float)deltaY);
-        PlaneAdvancementsClient.dragging.planeAdvancements$updatePos();
+        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getPos().add((float)deltaX, (float)deltaY);
+        PlaneAdvancementsClient.draggedWidget.planeAdvancements$updatePos();
         cir.setReturnValue(true);
         cir.cancel();
     }
