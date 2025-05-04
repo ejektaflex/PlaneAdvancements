@@ -89,7 +89,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 		MatrixStack matrixStack = context.getMatrices();
 		matrixStack.push();
-		matrixStack.translate(x+startX + 16.5, y+startY + 13.5, 0);
+		matrixStack.translate(x+startX + 15.5, y+startY + 12.5, 0);
 
 		if (lineType == LineType.ROTATED) {
 			matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));

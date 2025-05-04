@@ -54,6 +54,7 @@ public class AdvancementsScreenMixin extends Screen {
             return;
         }
         dragging.planeAdvancements$getPos().add((float)deltaX, (float)deltaY);
+        dragging.planeAdvancements$updatePos();
         cir.setReturnValue(true);
         cir.cancel();
     }
