@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
 import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +43,14 @@ public class AdvancementsScreenMixin extends Screen {
                 PlaneAdvancementsClient.draggedWidget = ducky;
                 return;
             }
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "keyPressed")
+    private void a(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+        //TEMP ARRANGER TODO
+        if (keyCode == InputUtil.GLFW_KEY_G && selectedTab != null) {
+            PlaneAdvancementsClient.arrangeIntoGrid((AdvancementWidgetInterface)selectedTab.getWidget(selectedTab.getRoot().getAdvancementEntry()));
         }
     }
 

@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(AdvancementWidget.class)
@@ -34,6 +35,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
 
+    @Shadow @Final private AdvancementDisplay display;
     @Unique
     Vector2f pos;
 
@@ -67,8 +69,12 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     }
 
     @Override
-    public List<AdvancementWidget> planeAdvancements$getChildren() {
-        return children;
+    public List<AdvancementWidgetInterface> planeAdvancements$getChildren() {
+        ArrayList<AdvancementWidgetInterface> childList = new ArrayList<>(children.size());
+        for (AdvancementWidget child : children) {
+            childList.add((AdvancementWidgetInterface)child);
+        }
+        return childList;
     }
 
     @Override
@@ -94,5 +100,30 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
         //noinspection EqualsBetweenInconvertibleTypes,SuspiciousMethodCalls
         return other.equals(parent) || children.contains(other);
+    }
+
+    @Override
+    public AdvancementDisplay planeAdvancements$getDisplay() {
+        return display;
+    }
+
+    @Override
+    public void planeAdvancements$setGridPos(Vector2f pos) {
+        //TODO store this instead
+        this.pos.add(pos);
+        planeAdvancements$updatePos();
+
+        if (planeAdvancements$isRoot()) {
+            return;
+        }
+
+        for (AdvancementWidget child : children) {
+            ((AdvancementWidgetInterface)child).planeAdvancements$setGridPos(pos);
+        }
+    }
+
+    @Override
+    public boolean planeAdvancements$isRoot() {
+        return display.getX() == 0;
     }
 }

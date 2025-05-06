@@ -28,7 +28,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	}
 
-	public static void arrangeIntoGrid(AdvancementPositionerInterface root) {
+	public static void arrangeIntoGrid(AdvancementWidgetInterface root) {
 		List<AdvancementCluster> clusters = getClusters(root);
 		calculateGrid(clusters);
 
@@ -77,11 +77,12 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		}
 	}
 
-	public static List<AdvancementCluster> getClusters(AdvancementPositionerInterface root) {
-		List<AdvancementPositionerInterface> positioners = root.planeAdvancements$getChildren(true);
-		List<AdvancementCluster> clusters = new ArrayList<>(positioners.size());
-		for (AdvancementPositionerInterface positioner : positioners) {
-			clusters.add(new AdvancementCluster(positioner));
+	public static List<AdvancementCluster> getClusters(AdvancementWidgetInterface root) {
+		List<AdvancementWidgetInterface> clusterRoots = root.planeAdvancements$getChildren();
+		clusterRoots.add(root);
+		List<AdvancementCluster> clusters = new ArrayList<>(clusterRoots.size());
+		for (AdvancementWidgetInterface clusterRoot : clusterRoots) {
+			clusters.add(new AdvancementCluster(clusterRoot));
 		}
 		return clusters;
 	}
@@ -129,6 +130,11 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	}
 
 	public static void applySpringForce(AdvancementWidgetInterface a, AdvancementWidgetInterface b, float attraction, float repulsion) {
+		//TODO: TEMP DISABLE
+		if (repulsion < 100) {
+			return;
+		}
+
 		// if the attraction force is big enough, the two advancements being attracted would collide in a single step
 		assert attraction < springScale/2f;
 
