@@ -1,8 +1,6 @@
 package com.nettakrim.plane_advancements.mixin;
 
-import com.nettakrim.plane_advancements.AdvancementTabInterface;
-import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
-import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
+import com.nettakrim.plane_advancements.*;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
@@ -49,13 +47,20 @@ public class AdvancementsScreenMixin extends Screen {
     }
 
     @Inject(at = @At("HEAD"), method = "keyPressed")
-    private void a(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        //TEMP ARRANGER TODO
-        if (keyCode == InputUtil.GLFW_KEY_G && selectedTab != null) {
-            PlaneAdvancementsClient.arrangeIntoGrid((AdvancementWidgetInterface)selectedTab.getWidget(selectedTab.getRoot().getAdvancementEntry()));
+    private void keyPresses(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+        if (selectedTab == null) {
+            return;
+        }
+
+        if (keyCode == InputUtil.GLFW_KEY_G) {
+            PlaneAdvancementsClient.treeType = TreeType.values()[(PlaneAdvancementsClient.treeType.ordinal() + 1) % TreeType.values().length];
             AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
             tab.planeAdvancements$updateRange();
             tab.planeAdvancements$centerPan();
+        }
+
+        if (keyCode == InputUtil.GLFW_KEY_H) {
+            PlaneAdvancementsClient.lineType = LineType.values()[(PlaneAdvancementsClient.lineType.ordinal() + 1) % LineType.values().length];
         }
     }
 
@@ -69,10 +74,10 @@ public class AdvancementsScreenMixin extends Screen {
 
     @Inject(at = @At("HEAD"), method = "mouseDragged", cancellable = true)
     void drag(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
-        if (PlaneAdvancementsClient.draggedWidget == null) {
+        if (PlaneAdvancementsClient.draggedWidget == null || PlaneAdvancementsClient.treeType != TreeType.SPRING) {
             return;
         }
-        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getPos().add((float)deltaX, (float)deltaY);
+        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX, (float)deltaY);
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$updatePos();
         cir.setReturnValue(true);
         cir.cancel();

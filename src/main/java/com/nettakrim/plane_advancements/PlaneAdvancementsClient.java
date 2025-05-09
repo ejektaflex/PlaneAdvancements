@@ -19,6 +19,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static LineType lineType = LineType.SMART;
+	public static TreeType treeType = TreeType.GRID;
 	private static final float springScale = 32f;
 
 	public static AdvancementWidgetInterface draggedWidget;
@@ -130,21 +131,16 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	}
 
 	public static void applySpringForce(AdvancementWidgetInterface a, AdvancementWidgetInterface b, float attraction, float repulsion) {
-		//TODO: TEMP DISABLE
-		if (repulsion < 100) {
-			return;
-		}
-
 		// if the attraction force is big enough, the two advancements being attracted would collide in a single step
 		assert attraction < springScale/2f;
 
-		Vector2f direction = new Vector2f(a.planeAdvancements$getPos());
-		float distance = b.planeAdvancements$getPos().distance(direction)/springScale;
+		Vector2f direction = new Vector2f(a.planeAdvancements$getTreePos());
+		float distance = b.planeAdvancements$getTreePos().distance(direction)/springScale;
 		if (distance == 0) {
 			return;
 		}
 
-		direction.sub(b.planeAdvancements$getPos());
+		direction.sub(b.planeAdvancements$getTreePos());
 
 		if (a.planeAdvancements$isConnected(b) && distance > 1) {
 			direction.normalize(distance*-attraction);
@@ -153,15 +149,9 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		}
 
 		if (a != PlaneAdvancementsClient.draggedWidget) {
-			a.planeAdvancements$getPos().add(direction);
+			a.planeAdvancements$getTreePos().add(direction);
 		} if (b != PlaneAdvancementsClient.draggedWidget) {
-			b.planeAdvancements$getPos().sub(direction);
+			b.planeAdvancements$getTreePos().sub(direction);
 		}
-	}
-
-	public enum LineType {
-		DEFAULT,
-		SMART,
-		ROTATED
 	}
 }

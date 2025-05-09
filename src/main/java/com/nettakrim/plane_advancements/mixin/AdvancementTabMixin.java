@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.nettakrim.plane_advancements.AdvancementTabInterface;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
 import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
+import com.nettakrim.plane_advancements.TreeType;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
@@ -32,23 +33,34 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Shadow private double originX;
     @Shadow private double originY;
 
-    @Unique int t;
+    @Shadow private boolean initialized;
+    @Shadow @Final private AdvancementWidget rootWidget;
+
+    @Unique private int t;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementWidget;renderLines(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "render")
     private boolean renderLines(AdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
         // remove root lines for grid mode
+        if (PlaneAdvancementsClient.treeType != TreeType.GRID) {
+            return true;
+        }
 
-        //for (AdvancementWidget child : ((AdvancementWidgetAccessor)instance).getChildren()) {
-        //    for (AdvancementWidget childChild : ((AdvancementWidgetAccessor)child).getChildren()) {
-        //        childChild.renderLines(context, x, y, border);
-        //    }
-        //}
-        //return false;
-        return true;
+        for (AdvancementWidgetInterface child : ((AdvancementWidgetInterface)instance).planeAdvancements$getChildren()) {
+            for (AdvancementWidgetInterface childChild : child.planeAdvancements$getChildren()) {
+                ((AdvancementWidget)childChild).renderLines(context, x, y, border);
+            }
+        }
+        return false;
     }
 
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
+        if (!initialized) {
+            PlaneAdvancementsClient.arrangeIntoGrid((AdvancementWidgetInterface)rootWidget);
+            planeAdvancements$updateRange();
+            planeAdvancements$centerPan();
+        }
+
         boolean update = t%60 == 0;
 
         for (AdvancementWidget widgetA : widgets.values()) {
@@ -57,12 +69,13 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
                 PlaneAdvancementsClient.applySpringForce(ducky, (AdvancementWidgetInterface)widgetB, 0.1f, 0.1f);
             }
 
-            if (!update) {
+            // always update spring graph forces, so that it can settle while not visible
+            if (!update && PlaneAdvancementsClient.treeType == TreeType.SPRING) {
                 ducky.planeAdvancements$updatePos();
             }
         }
 
-        if (update) {
+        if (update && PlaneAdvancementsClient.treeType == TreeType.SPRING) {
             planeAdvancements$updateRange();
         }
         t++;
@@ -90,10 +103,12 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         maxPanX = Integer.MIN_VALUE;
         maxPanY = Integer.MIN_VALUE;
 
-        for (AdvancementWidget widgetA : widgets.values()) {
-            int i = widgetA.getX();
+        for (AdvancementWidget widget : widgets.values()) {
+            ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
+
+            int i = widget.getX();
             int j = i + 28;
-            int k = widgetA.getY();
+            int k = widget.getY();
             int l = k + 27;
             minPanX = Math.min(minPanX, i);
             maxPanX = Math.max(maxPanX, j);
@@ -112,7 +127,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         originY -= offsetY;
         for (AdvancementWidget widget : widgets.values()) {
             AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widget;
-            ducky.planeAdvancements$getPos().add(offsetX, offsetY);
+            ducky.planeAdvancements$getCurrentPos().add(offsetX, offsetY);
             ducky.planeAdvancements$updatePos();
         }
     }

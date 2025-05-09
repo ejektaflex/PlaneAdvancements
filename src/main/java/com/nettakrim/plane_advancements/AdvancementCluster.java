@@ -56,7 +56,7 @@ public class AdvancementCluster {
         pos.y += offsetY;
 
         pos.mul(28, 27);
-        pos.sub(root.planeAdvancements$getPos());
+        pos.sub(root.planeAdvancements$getDefaultPos());
 
         root.planeAdvancements$setGridPos(pos);
     }

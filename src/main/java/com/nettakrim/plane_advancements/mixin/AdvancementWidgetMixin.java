@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
+import com.nettakrim.plane_advancements.LineType;
 import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.PlacedAdvancement;
@@ -36,17 +37,21 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
 
     @Shadow @Final private AdvancementDisplay display;
-    @Unique
-    Vector2f pos;
+
+    @Unique Vector2f defaultPos;
+    @Unique Vector2f treePos;
+    @Unique Vector2f gridPos;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
-        pos = new Vector2f(x, y);
+        defaultPos = new Vector2f(x, y);
+        treePos = new Vector2f(x, y);
+        gridPos = new Vector2f(x, y);
     }
 
     @WrapMethod(method = "renderLines")
     void renderLines(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
-        if (PlaneAdvancementsClient.lineType == PlaneAdvancementsClient.LineType.DEFAULT) {
+        if (PlaneAdvancementsClient.lineType == LineType.DEFAULT) {
             original.call(context, x, y, border);
             return;
         }
@@ -78,18 +83,30 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     }
 
     @Override
-    public Vector2f planeAdvancements$getPos() {
-        return pos;
-    }
-
-    @Override
     public void planeAdvancements$updatePos() {
+        Vector2f pos = planeAdvancements$getCurrentPos();
+
         if (this.x != MathHelper.floor(pos.x) && this.x != MathHelper.ceil(pos.x)) {
             this.x = Math.round(pos.x);
         }
         if (this.y != MathHelper.floor(pos.y) && this.y != MathHelper.ceil(pos.y)) {
             this.y = Math.round(pos.y);
         }
+    }
+
+    @Override
+    public Vector2f planeAdvancements$getDefaultPos() {
+        return defaultPos;
+    }
+
+    @Override
+    public Vector2f planeAdvancements$getTreePos() {
+        return treePos;
+    }
+
+    @Override
+    public Vector2f planeAdvancements$getGridPos() {
+        return gridPos;
     }
 
     @Override
@@ -109,8 +126,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Override
     public void planeAdvancements$setGridPos(Vector2f pos) {
-        //TODO store this instead
-        this.pos.add(pos);
+        gridPos.add(pos);
         planeAdvancements$updatePos();
 
         if (planeAdvancements$isRoot()) {
