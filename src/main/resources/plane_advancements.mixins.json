@@ -8,7 +8,6 @@
   },
   "client": [
     "AdvancementsScreenMixin",
-    "AdvancementTabAccessor",
     "AdvancementTabMixin",
     "AdvancementWidgetMixin",
     "BetterAdvancementWidgetAccessor",

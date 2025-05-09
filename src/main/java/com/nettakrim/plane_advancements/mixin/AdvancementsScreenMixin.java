@@ -1,10 +1,10 @@
 package com.nettakrim.plane_advancements.mixin;
 
+import com.nettakrim.plane_advancements.AdvancementTabInterface;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
 import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
-import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
 import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
@@ -15,6 +15,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Iterator;
 
 @Mixin(AdvancementsScreen.class)
 public class AdvancementsScreenMixin extends Screen {
@@ -30,17 +32,17 @@ public class AdvancementsScreenMixin extends Screen {
             return;
         }
         PlaneAdvancementsClient.draggedWidget = null;
-        AdvancementTabAccessor tabAccessor = (AdvancementTabAccessor)selectedTab;
+        AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
 
         int i = (this.width - 252) / 2;
         int j = (this.height - 140) / 2;
-        int x = MathHelper.floor(mouseX-tabAccessor.getOriginX()-i-9);
-        int y = MathHelper.floor(mouseY-tabAccessor.getOriginY()-j-18);
+        int x = MathHelper.floor(mouseX-tab.planeAdvancements$getPanX()-i-9);
+        int y = MathHelper.floor(mouseY-tab.planeAdvancements$getPanY()-j-18);
 
-        for (AdvancementWidget advancementWidget : ((AdvancementTabAccessor)selectedTab).getWidgets().values()) {
-            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) advancementWidget;
-            if (ducky.planeAdvancements$isHovering(x, y)) {
-                PlaneAdvancementsClient.draggedWidget = ducky;
+        for (Iterator<AdvancementWidgetInterface> it = tab.planeAdvancements$getWidgets(); it.hasNext();) {
+            AdvancementWidgetInterface widget = it.next();
+            if (widget.planeAdvancements$isHovering(x, y)) {
+                PlaneAdvancementsClient.draggedWidget = widget;
                 return;
             }
         }
@@ -51,6 +53,9 @@ public class AdvancementsScreenMixin extends Screen {
         //TEMP ARRANGER TODO
         if (keyCode == InputUtil.GLFW_KEY_G && selectedTab != null) {
             PlaneAdvancementsClient.arrangeIntoGrid((AdvancementWidgetInterface)selectedTab.getWidget(selectedTab.getRoot().getAdvancementEntry()));
+            AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
+            tab.planeAdvancements$updateRange();
+            tab.planeAdvancements$centerPan();
         }
     }
 
