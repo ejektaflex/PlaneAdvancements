@@ -60,7 +60,7 @@ public class AdvancementsScreenMixin extends Screen {
         }
 
         if (keyCode == InputUtil.GLFW_KEY_H) {
-            PlaneAdvancementsClient.lineType = LineType.values()[(PlaneAdvancementsClient.lineType.ordinal() + 1) % LineType.values().length];
+            PlaneAdvancementsClient.lineType.put(PlaneAdvancementsClient.treeType, LineType.values()[(PlaneAdvancementsClient.lineType.get(PlaneAdvancementsClient.treeType).ordinal() + 1) % LineType.values().length]);
         }
     }
 

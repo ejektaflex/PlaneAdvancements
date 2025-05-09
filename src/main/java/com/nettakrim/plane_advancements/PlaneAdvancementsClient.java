@@ -12,13 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static final String MOD_ID = "plane_advancements";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static LineType lineType = LineType.SMART;
+	public static Map<TreeType, LineType> lineType = new HashMap<>();
 	public static TreeType treeType = TreeType.GRID;
 	private static final float springScale = 32f;
 
@@ -26,7 +28,9 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-
+		lineType.put(TreeType.DEFAULT, LineType.DEFAULT);
+		lineType.put(TreeType.SPRING, LineType.ROTATED);
+		lineType.put(TreeType.GRID, LineType.SMART);
 	}
 
 	public static void arrangeIntoGrid(AdvancementWidgetInterface root) {
@@ -96,7 +100,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		matrixStack.push();
 		matrixStack.translate(x+startX + 15.5, y+startY + 12.5, 0);
 
-		if (lineType == LineType.ROTATED) {
+		if (lineType.get(treeType) == LineType.ROTATED) {
 			matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));
 			int distance = MathHelper.floor(MathHelper.sqrt(offsetX*offsetX + offsetY*offsetY));
 			if (border) {
