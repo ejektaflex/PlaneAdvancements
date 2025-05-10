@@ -57,7 +57,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
         }
 
         if (parent != null) {
-            PlaneAdvancementsClient.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border);
+            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border);
         }
 
         for (AdvancementWidget advancementWidget : children) {

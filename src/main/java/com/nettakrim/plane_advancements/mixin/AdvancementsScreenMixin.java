@@ -57,6 +57,7 @@ public class AdvancementsScreenMixin extends Screen {
             AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
             tab.planeAdvancements$updateRange();
             tab.planeAdvancements$centerPan();
+            PlaneAdvancementsClient.draggedWidget = null;
         }
 
         if (keyCode == InputUtil.GLFW_KEY_H) {

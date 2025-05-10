@@ -56,7 +56,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
         if (!initialized) {
-            PlaneAdvancementsClient.arrangeIntoGrid((AdvancementWidgetInterface)rootWidget);
+            planeAdvancements$arrangeIntoGrid();
             planeAdvancements$updateRange();
             planeAdvancements$centerPan();
         }
@@ -66,7 +66,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         for (AdvancementWidget widgetA : widgets.values()) {
             AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widgetA;
             for (AdvancementWidget widgetB : widgets.values()) {
-                PlaneAdvancementsClient.applySpringForce(ducky, (AdvancementWidgetInterface)widgetB, 0.1f, 0.1f);
+                ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface)widgetB, 0.1f, 0.1f);
             }
 
             // always update spring graph forces, so that it can settle while not visible
@@ -84,6 +84,11 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Override
     public Iterator<AdvancementWidgetInterface> planeAdvancements$getWidgets() {
         return widgets.values().stream().map(w -> (AdvancementWidgetInterface)w).iterator();
+    }
+
+    @Override
+    public AdvancementWidgetInterface planeAdvancements$getRoot() {
+        return (AdvancementWidgetInterface)rootWidget;
     }
 
     @Override
