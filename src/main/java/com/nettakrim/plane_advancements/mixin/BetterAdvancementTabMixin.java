@@ -29,12 +29,11 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
 
     @Shadow private int scrollX;
     @Shadow private int scrollY;
-
-    @Shadow private boolean centered;
+    
     @Shadow @Final private BetterAdvancementWidget root;
 
     @Unique
-    private int temperature = 1000;
+    private int temperature = -1;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lbetteradvancements/common/gui/BetterAdvancementWidget;drawConnectivity(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "drawContents")
     private boolean renderLines(BetterAdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
@@ -53,7 +52,8 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
 
     @Inject(at = @At("HEAD"), method = "drawContents")
     private void render(DrawContext context, int left, int top, int width, int height, float zoom, CallbackInfo ci) {
-        if (!centered) {
+        // shadowing centered is inconsistent, for some reason
+        if (temperature == -1) {
             planeAdvancements$arrangeIntoGrid();
             planeAdvancements$updateRange();
             planeAdvancements$centerPan(width, height);
