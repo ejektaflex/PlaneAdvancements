@@ -14,6 +14,8 @@ public interface AdvancementTabInterface {
 
     void planeAdvancements$updateRange();
 
+    void planeAdvancements$heatGraph();
+
     default void planeAdvancements$arrangeIntoGrid() {
         AdvancementWidgetInterface root = planeAdvancements$getRoot();
         List<AdvancementWidgetInterface> clusterRoots = root.planeAdvancements$getChildren();

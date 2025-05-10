@@ -36,7 +36,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Shadow private boolean initialized;
     @Shadow @Final private AdvancementWidget rootWidget;
 
-    @Unique private int t;
+    @Unique private int temperature;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementWidget;renderLines(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "render")
     private boolean renderLines(AdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
@@ -59,26 +59,40 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             planeAdvancements$arrangeIntoGrid();
             planeAdvancements$updateRange();
             planeAdvancements$centerPan();
+            planeAdvancements$heatGraph();
         }
 
-        boolean update = t%60 == 0;
+        if (temperature <= 0) {
+            return;
+        }
+        temperature--;
 
-        for (AdvancementWidget widgetA : widgets.values()) {
-            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widgetA;
-            for (AdvancementWidget widgetB : widgets.values()) {
-                ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface)widgetB, 0.1f, 0.1f);
+        // always update spring graph forces, so that it can settle while not visible
+        int steps = MathHelper.ceil(MathHelper.sqrt(temperature /10f));
+        for (int i = 0; i < steps; i++) {
+            for (AdvancementWidget widgetA : widgets.values()) {
+                AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) widgetA;
+                for (AdvancementWidget widgetB : widgets.values()) {
+                    ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface) widgetB, 0.1f, 0.1f);
+                }
             }
+        }
 
-            // always update spring graph forces, so that it can settle while not visible
-            if (!update && PlaneAdvancementsClient.treeType == TreeType.SPRING) {
-                ducky.planeAdvancements$updatePos();
+        if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
+            // == 1 so it updates on the last update tick
+            if (temperature%60 == 1) {
+                planeAdvancements$updateRange();
+            } else {
+                for (AdvancementWidget widgetA : widgets.values()) {
+                    ((AdvancementWidgetInterface)widgetA).planeAdvancements$updatePos();
+                }
             }
         }
+    }
 
-        if (update && PlaneAdvancementsClient.treeType == TreeType.SPRING) {
-            planeAdvancements$updateRange();
-        }
-        t++;
+    @Override
+    public void planeAdvancements$heatGraph() {
+        temperature = 1000;
     }
 
     @Override

@@ -80,6 +80,8 @@ public class AdvancementsScreenMixin extends Screen {
         }
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX, (float)deltaY);
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$updatePos();
+        assert selectedTab != null;
+        ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();
         cir.setReturnValue(true);
         cir.cancel();
     }
