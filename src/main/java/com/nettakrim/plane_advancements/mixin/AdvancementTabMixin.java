@@ -116,8 +116,8 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Override
     public void planeAdvancements$updateRange() {
         minPanX = Integer.MAX_VALUE;
-        minPanY = Integer.MAX_VALUE;
         maxPanX = Integer.MIN_VALUE;
+        minPanY = Integer.MAX_VALUE;
         maxPanY = Integer.MIN_VALUE;
 
         for (AdvancementWidget widget : widgets.values()) {
