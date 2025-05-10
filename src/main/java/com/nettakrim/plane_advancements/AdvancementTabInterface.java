@@ -1,5 +1,7 @@
 package com.nettakrim.plane_advancements;
 
+import org.joml.Vector2f;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +34,8 @@ public interface AdvancementTabInterface {
     }
 
     static void calculateGrid(List<AdvancementCluster> clusters) {
+        //TODO: arrange better
+
         //https://www.david-colson.com/2020/03/10/exploring-rect-packing.html
         clusters.sort((a, b) -> {
             int i = Float.compare(b.size.y, a.size.y);
@@ -47,16 +51,16 @@ public interface AdvancementTabInterface {
         {
             // If this rectangle will go past the width of the image
             // Then loop around to next row, using the largest height from the previous row
-            if ((xPos + cluster.size.x) > 10)
-            {
+            if ((xPos + cluster.size.x) > 10) {
                 yPos += largestHThisRow;
                 xPos = 0;
                 largestHThisRow = 0;
             }
 
             // If we go off the bottom edge of the image, then we've failed
-            if ((yPos + cluster.size.y) > 10)
+            if ((yPos + cluster.size.y) > 10) {
                 break;
+            }
 
             // This is the position of the rectangle
             cluster.pos.x = xPos;
@@ -66,8 +70,15 @@ public interface AdvancementTabInterface {
             xPos += cluster.size.x;
 
             // Just saving the largest height in the new row
-            if (cluster.size.y > largestHThisRow)
+            if (cluster.size.y > largestHThisRow) {
                 largestHThisRow = cluster.size.y;
+            }
+        }
+
+        // x+y mirror
+        Vector2f v = new Vector2f(10, 10);
+        for (AdvancementCluster cluster : clusters) {
+            v.sub(cluster.pos, cluster.pos).sub(cluster.size);
         }
     }
 }
