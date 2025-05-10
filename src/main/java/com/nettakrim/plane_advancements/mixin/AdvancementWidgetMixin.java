@@ -109,8 +109,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     }
 
     @Override
-    public boolean planeAdvancements$isHovering(int mouseX, int mouseY) {
-        return shouldRender(0, 0, mouseX, mouseY);
+    public boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY) {
+        return shouldRender((int)originX, (int)originY, mouseX, mouseY);
     }
 
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {

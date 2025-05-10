@@ -26,7 +26,7 @@ public interface AdvancementWidgetInterface {
     Vector2f planeAdvancements$getTreePos();
     Vector2f planeAdvancements$getGridPos();
 
-    boolean planeAdvancements$isHovering(int mouseX, int mouseY);
+    boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY);
 
     boolean planeAdvancements$isConnected(AdvancementWidgetInterface other);
 

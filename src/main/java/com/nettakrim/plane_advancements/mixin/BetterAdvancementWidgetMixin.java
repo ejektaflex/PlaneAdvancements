@@ -108,8 +108,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     @Override
-    public boolean planeAdvancements$isHovering(int mouseX, int mouseY) {
-        return isMouseOver(0, 0, mouseX, mouseY, BetterAdvancementsScreen.zoom);
+    public boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY) {
+        return isMouseOver(originX, originY, mouseX, mouseY, BetterAdvancementsScreen.zoom);
     }
 
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {

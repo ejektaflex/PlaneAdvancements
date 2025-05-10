@@ -32,14 +32,14 @@ public class AdvancementsScreenMixin extends Screen {
         PlaneAdvancementsClient.draggedWidget = null;
         AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
 
-        int i = (this.width - 252) / 2;
-        int j = (this.height - 140) / 2;
-        int x = MathHelper.floor(mouseX-tab.planeAdvancements$getPanX()-i-9);
-        int y = MathHelper.floor(mouseY-tab.planeAdvancements$getPanY()-j-18);
+        double panX = tab.planeAdvancements$getPanX();
+        double panY = tab.planeAdvancements$getPanY();
+        int x = MathHelper.floor(mouseX-((this.width - 252) >> 1)-9);
+        int y = MathHelper.floor(mouseY-((this.height - 140) >> 1)-18);
 
         for (Iterator<AdvancementWidgetInterface> it = tab.planeAdvancements$getWidgets(); it.hasNext();) {
             AdvancementWidgetInterface widget = it.next();
-            if (widget.planeAdvancements$isHovering(x, y)) {
+            if (widget.planeAdvancements$isHovering(panX, panY, x, y)) {
                 PlaneAdvancementsClient.draggedWidget = widget;
                 return;
             }
