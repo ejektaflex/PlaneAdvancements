@@ -73,9 +73,9 @@ public interface AdvancementWidgetInterface {
 
         MatrixStack matrixStack = context.getMatrices();
         matrixStack.push();
-        matrixStack.translate(x+startX + 15.5, y+startY + 12.5, 0);
 
-        if (PlaneAdvancementsClient.lineType.get(PlaneAdvancementsClient.treeType) == LineType.ROTATED) {
+        if (PlaneAdvancementsClient.getCurrentLinetype() == LineType.ROTATED) {
+            matrixStack.translate(x+startX + 16.5, y+startY + 13.5, 0);
             matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));
             int distance = MathHelper.floor(MathHelper.sqrt(offsetX*offsetX + offsetY*offsetY));
             if (border) {
@@ -85,6 +85,7 @@ public interface AdvancementWidgetInterface {
                 context.drawHorizontalLine(0, distance, 0, -1);
             }
         } else {
+            matrixStack.translate(x+startX + 15.5, y+startY + 12.5, 0);
             int absX = MathHelper.abs(offsetX);
             int absY = MathHelper.abs(offsetY);
             boolean isX = absX < absY;

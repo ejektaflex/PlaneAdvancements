@@ -53,7 +53,7 @@ public class AdvancementsScreenMixin extends Screen {
         }
 
         if (keyCode == InputUtil.GLFW_KEY_G) {
-            PlaneAdvancementsClient.treeType = TreeType.values()[(PlaneAdvancementsClient.treeType.ordinal() + 1) % TreeType.values().length];
+            PlaneAdvancementsClient.treeType = PlaneAdvancementsClient.treeType.next();
             AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
             tab.planeAdvancements$updateRange();
             tab.planeAdvancements$centerPan();
@@ -61,7 +61,7 @@ public class AdvancementsScreenMixin extends Screen {
         }
 
         if (keyCode == InputUtil.GLFW_KEY_H) {
-            PlaneAdvancementsClient.lineType.put(PlaneAdvancementsClient.treeType, LineType.values()[(PlaneAdvancementsClient.lineType.get(PlaneAdvancementsClient.treeType).ordinal() + 1) % LineType.values().length]);
+            PlaneAdvancementsClient.lineType.put(PlaneAdvancementsClient.treeType, PlaneAdvancementsClient.getCurrentLinetype().next());
         }
     }
 

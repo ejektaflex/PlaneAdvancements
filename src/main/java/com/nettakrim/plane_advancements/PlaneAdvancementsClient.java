@@ -23,4 +23,8 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		lineType.put(TreeType.SPRING, LineType.ROTATED);
 		lineType.put(TreeType.GRID, LineType.SMART);
 	}
+
+	public static LineType getCurrentLinetype() {
+		return lineType.get(treeType);
+	}
 }

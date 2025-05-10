@@ -51,7 +51,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @WrapMethod(method = "renderLines")
     void renderLines(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
-        if (PlaneAdvancementsClient.lineType.get(PlaneAdvancementsClient.treeType) == LineType.DEFAULT) {
+        if (PlaneAdvancementsClient.getCurrentLinetype() == LineType.DEFAULT) {
             original.call(context, x, y, border);
             return;
         }
