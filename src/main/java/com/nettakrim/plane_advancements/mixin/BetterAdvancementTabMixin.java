@@ -34,7 +34,7 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
     @Shadow @Final private BetterAdvancementWidget root;
 
     @Unique
-    private int temperature;
+    private int temperature = 1000;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lbetteradvancements/common/gui/BetterAdvancementWidget;drawConnectivity(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "drawContents")
     private boolean renderLines(BetterAdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
