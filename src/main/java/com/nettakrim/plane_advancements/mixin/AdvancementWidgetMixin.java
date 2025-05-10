@@ -30,17 +30,16 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Shadow @Final @Mutable
     private int y;
 
-    @Shadow @Final private List<AdvancementWidget> children;
-
     @Shadow @Nullable private AdvancementWidget parent;
-
-    @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
+    @Shadow @Final private List<AdvancementWidget> children;
 
     @Shadow @Final private AdvancementDisplay display;
 
     @Unique Vector2f defaultPos;
     @Unique Vector2f treePos;
     @Unique Vector2f gridPos;
+
+    @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
 
     @Inject(at = @At("TAIL"), method = "<init>")
     void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {

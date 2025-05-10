@@ -52,10 +52,10 @@ public class AdvancementCluster {
         return new Vector3f(widthMax, heightMin, heightMax);
     }
 
-    public void applyPosition() {
+    public void applyPosition(int xScale, int yScale) {
         pos.y += offsetY;
 
-        pos.mul(28, 27);
+        pos.mul(xScale, yScale);
         pos.sub(root.planeAdvancements$getDefaultPos());
 
         root.planeAdvancements$setGridPos(pos);

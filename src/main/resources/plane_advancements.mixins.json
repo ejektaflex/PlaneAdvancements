@@ -10,7 +10,8 @@
     "AdvancementsScreenMixin",
     "AdvancementTabMixin",
     "AdvancementWidgetMixin",
-    "BetterAdvancementWidgetAccessor",
+    "BetterAdvancementsScreenMixin",
+    "BetterAdvancementTabMixin",
     "BetterAdvancementWidgetMixin"
   ]
 }

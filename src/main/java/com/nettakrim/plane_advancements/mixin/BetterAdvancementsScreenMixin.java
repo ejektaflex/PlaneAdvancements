@@ -1,14 +1,17 @@
 package com.nettakrim.plane_advancements.mixin;
 
-import com.nettakrim.plane_advancements.*;
+import betteradvancements.common.gui.BetterAdvancementTab;
+import com.nettakrim.plane_advancements.AdvancementTabInterface;
+import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
+import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
+import com.nettakrim.plane_advancements.TreeType;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.advancement.AdvancementTab;
-import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,11 +19,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Iterator;
 
-@Mixin(AdvancementsScreen.class)
-public class AdvancementsScreenMixin extends Screen {
-    @Shadow @Nullable private AdvancementTab selectedTab;
+@Pseudo
+@Mixin(targets = "betteradvancements.common.gui.BetterAdvancementsScreen", remap = false)
+public class BetterAdvancementsScreenMixin extends Screen {
+    @Shadow @Nullable private BetterAdvancementTab selectedTab;
 
-    protected AdvancementsScreenMixin(Text title) {
+    @Shadow private int internalWidth;
+    @Shadow private int internalHeight;
+
+    @Shadow private static int SIDE;
+    @Shadow private static int TOP;
+    @Shadow private static int PADDING;
+
+    protected BetterAdvancementsScreenMixin(Text title) {
         super(title);
     }
 
@@ -56,7 +67,22 @@ public class AdvancementsScreenMixin extends Screen {
             PlaneAdvancementsClient.treeType = PlaneAdvancementsClient.treeType.next();
             AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
             tab.planeAdvancements$updateRange();
-            tab.planeAdvancements$centerPan(117, 56);
+
+            int left = SIDE + (width - internalWidth) / 2;
+            int top = TOP + (height - internalHeight) / 2;
+
+            int right = internalWidth - SIDE + (width - internalWidth) / 2;
+            int bottom = internalHeight - SIDE + (height - internalHeight) / 2;
+
+            int boxLeft = left + PADDING;
+            int boxTop = top + 2*PADDING;
+            int boxRight = right - PADDING;
+            int boxBottom = bottom - PADDING;
+
+            int width = boxRight - boxLeft;
+            int height = boxBottom - boxTop;
+
+            tab.planeAdvancements$centerPan(width, height);
             PlaneAdvancementsClient.draggedWidget = null;
         }
 

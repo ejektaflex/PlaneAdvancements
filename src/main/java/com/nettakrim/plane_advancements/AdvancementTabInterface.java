@@ -10,11 +10,12 @@ public interface AdvancementTabInterface {
 
     double planeAdvancements$getPanX();
     double planeAdvancements$getPanY();
-    void planeAdvancements$centerPan();
+    void planeAdvancements$centerPan(int width, int height);
 
     void planeAdvancements$updateRange();
 
     void planeAdvancements$heatGraph();
+    void planeAdvancements$applyClusters(List<AdvancementCluster> clusters);
 
     default void planeAdvancements$arrangeIntoGrid() {
         AdvancementWidgetInterface root = planeAdvancements$getRoot();
@@ -27,10 +28,7 @@ public interface AdvancementTabInterface {
         }
 
         calculateGrid(clusters);
-
-        for (AdvancementCluster cluster : clusters) {
-            cluster.applyPosition();
-        }
+        planeAdvancements$applyClusters(clusters);
     }
 
     static void calculateGrid(List<AdvancementCluster> clusters) {
