@@ -116,8 +116,8 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
     @Override
     public void planeAdvancements$updateRange() {
         minX = Integer.MAX_VALUE;
-        minY = Integer.MAX_VALUE;
         maxX = Integer.MIN_VALUE;
+        minY = Integer.MAX_VALUE;
         maxY = Integer.MIN_VALUE;
 
         for (BetterAdvancementWidget widget : widgets.values()) {
@@ -133,19 +133,8 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
             maxY = Math.max(maxY, l);
         }
 
-        // min pan only works as 0, so if it does extend too far, everything needs to be offset to compensate
-        int offsetX = MathHelper.ceil(-minX/16f)*16;
-        int offsetY = MathHelper.ceil(-minY/16f)*16;
-        minX = 0;
-        minY = 0;
-        maxX += offsetX;
-        maxY += offsetY;
-        scrollX -= offsetX;
-        scrollY -= offsetY;
         for (BetterAdvancementWidget widget : widgets.values()) {
-            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widget;
-            ducky.planeAdvancements$getCurrentPos().add(offsetX, offsetY);
-            ducky.planeAdvancements$updatePos();
+            ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
         }
     }
 
