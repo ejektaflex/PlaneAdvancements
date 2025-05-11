@@ -1,0 +1,9 @@
+{
+  "plane_advancements.tree.default": "[",
+  "plane_advancements.tree.spring": "X",
+  "plane_advancements.tree.grid": "#",
+  "plane_advancements.line.default": "L",
+  "plane_advancements.line.smart": "L",
+  "plane_advancements.line.rotated": "\\",
+  "plane_advancements.repulsion": "Spread %s"
+}
