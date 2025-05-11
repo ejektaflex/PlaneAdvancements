@@ -37,6 +37,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Unique private int temperature;
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
+    @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementWidget;renderLines(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "render")
     private boolean renderLines(AdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
@@ -61,9 +62,13 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         }
 
         if (currentType != PlaneAdvancementsClient.treeType) {
-            // update positions if type has changed without an update
             planeAdvancements$updateRange();
             planeAdvancements$centerPan(117, 56);
+        }
+
+        if (currentRepulsion != PlaneAdvancementsClient.repulsion) {
+            currentRepulsion = PlaneAdvancementsClient.repulsion;
+            planeAdvancements$heatGraph();
         }
 
         if (temperature <= 0) {
@@ -77,7 +82,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             for (AdvancementWidget widgetA : widgets.values()) {
                 AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) widgetA;
                 for (AdvancementWidget widgetB : widgets.values()) {
-                    ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface) widgetB, 0.1f, 0.1f);
+                    ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface) widgetB, 0.1f, PlaneAdvancementsClient.repulsion);
                 }
             }
         }

@@ -1,10 +1,10 @@
 package com.nettakrim.plane_advancements.mixin;
 
 import com.nettakrim.plane_advancements.*;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Iterator;
@@ -27,6 +28,7 @@ public class AdvancementsScreenMixin extends Screen {
     @Inject(at = @At("HEAD"), method = "mouseClicked")
     void click(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (selectedTab == null || button != 1) {
+            PlaneAdvancementsClient.clearUIHover();
             return;
         }
         PlaneAdvancementsClient.draggedWidget = null;
@@ -46,25 +48,6 @@ public class AdvancementsScreenMixin extends Screen {
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "keyPressed")
-    private void keyPresses(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        if (selectedTab == null) {
-            return;
-        }
-
-        if (keyCode == InputUtil.GLFW_KEY_G) {
-            PlaneAdvancementsClient.treeType = PlaneAdvancementsClient.treeType.next();
-            AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
-            tab.planeAdvancements$updateRange();
-            tab.planeAdvancements$centerPan(117, 56);
-            PlaneAdvancementsClient.draggedWidget = null;
-        }
-
-        if (keyCode == InputUtil.GLFW_KEY_H && PlaneAdvancementsClient.treeType == TreeType.SPRING) {
-            PlaneAdvancementsClient.springLineIsAngled = !PlaneAdvancementsClient.springLineIsAngled;
-        }
-    }
-
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (PlaneAdvancementsClient.draggedWidget != null) {
@@ -76,6 +59,10 @@ public class AdvancementsScreenMixin extends Screen {
     @Inject(at = @At("HEAD"), method = "mouseDragged", cancellable = true)
     void drag(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
         if (PlaneAdvancementsClient.draggedWidget == null || PlaneAdvancementsClient.treeType != TreeType.SPRING) {
+            if (PlaneAdvancementsClient.selectedUI()) {
+                cir.setReturnValue(super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY));
+                cir.cancel();
+            }
             return;
         }
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX, (float)deltaY);
@@ -84,5 +71,21 @@ public class AdvancementsScreenMixin extends Screen {
         ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();
         cir.setReturnValue(true);
         cir.cancel();
+    }
+
+    @Inject(at = @At("TAIL"), method = "render")
+    void render(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
+        PlaneAdvancementsClient.treeButton.render(context, mouseX, mouseY, tickDelta);
+        if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
+            PlaneAdvancementsClient.lineButton.render(context, mouseX, mouseY, tickDelta);
+            PlaneAdvancementsClient.repulsionSlider.render(context, mouseX, mouseY, tickDelta);
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "init")
+    void init(CallbackInfo ci) {
+        addSelectableChild(PlaneAdvancementsClient.treeButton);
+        addSelectableChild(PlaneAdvancementsClient.lineButton);
+        addSelectableChild(PlaneAdvancementsClient.repulsionSlider);
     }
 }
