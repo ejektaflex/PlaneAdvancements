@@ -52,11 +52,11 @@ public interface AdvancementTabInterface {
 
             // if a cluster is too big, just let it overflow
             if (search <= 0) {
+                cluster.pos.x = 1;
+                cluster.pos.y = mask.size();
                 for (int i = 0; i < cluster.size.y; i++) {
                     mask.add(Integer.MAX_VALUE);
                 }
-                cluster.pos.x = 0;
-                cluster.pos.y = y;
                 usedWidth = maxWidth;
                 continue;
             }
@@ -86,20 +86,26 @@ public interface AdvancementTabInterface {
             }
         }
 
-        // settle clusters to what will be the left, this is better than just doing rightwards to begin with as it means bigger clusters will be further to what will be the right
+        // settle clusters to what will be the left, this is better than just putting them there to begin with as it means bigger clusters will be further to what will be the right
+        Vector2f mirror = new Vector2f(usedWidth+1, mask.size());
         for (AdvancementCluster cluster : clusters.reversed()) {
+            //ignore overflowed clusters
+            if (cluster.size.x > maxWidth) {
+                continue;
+            }
+
             int position = (int)cluster.pos.x;
             int y = (int)cluster.pos.y;
 
             int startingFilter = ~getMask(cluster.size.x, position);
 
             while (true) {
+                // step forwards for a position that the cluster fits in
                 position++;
 
                 int sizeMask = getMask(cluster.size.x, position);
 
                 boolean fits;
-
                 if (cluster.size.x + position > maxWidth) {
                     fits = false;
                 } else {
@@ -112,6 +118,7 @@ public interface AdvancementTabInterface {
                     }
                 }
 
+                // once collided, move to last free position
                 if (!fits) {
                     position--;
                     if (position == cluster.pos.x) {
@@ -127,15 +134,12 @@ public interface AdvancementTabInterface {
                     break;
                 }
             }
+
+            // xy mirror everything, to get them to their final position
+            mirror.sub(cluster.pos, cluster.pos).sub(cluster.size.x, cluster.size.y);
         }
 
-        // xy mirror everything
-        Vector2f v = new Vector2f(usedWidth+1, mask.size());
-        for (AdvancementCluster cluster : clusters) {
-            v.sub(cluster.pos, cluster.pos).sub(cluster.size.x, cluster.size.y);
-        }
-
-        // set root position, then add it to list so it's position gets applied
+        // set root position, then add it to list, so it's position gets applied later
         root.pos.x = 0;
         root.pos.y = (mask.size()-1)/2f;
         clusters.add(root);
