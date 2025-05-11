@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Pseudo
 @Mixin(targets = "betteradvancements.common.gui.BetterAdvancementTab", remap = false)
-public class BetterAdvancementTabMixin implements AdvancementTabInterface {
+public abstract class BetterAdvancementTabMixin implements AdvancementTabInterface {
     @Shadow
     @Final
     private Map<AdvancementEntry, BetterAdvancementWidget> widgets;
@@ -90,6 +90,16 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
         }
     }
 
+    @Inject(at = @At("TAIL"), method = "scroll")
+    private void fixPan(double x, double y, int width, int height, CallbackInfo ci) {
+        if (maxX - minX <= width) {
+            scrollX = (width - (maxX + minX))/2;
+        }
+        if (maxY - minY <= height) {
+            scrollY = (height - (maxY + minY))/2;
+        }
+    }
+
     @Override
     public void planeAdvancements$heatGraph() {
         temperature = 1000;
@@ -142,8 +152,8 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public void planeAdvancements$centerPan(int width, int height) {
-        this.scrollX = (width - (this.maxX + this.minX))/2;
-        this.scrollY = (height - (this.maxY + this.minY))/2;
+        scrollX = (width - (maxX + minX))/2;
+        scrollY = (height - (maxY + minY))/2;
     }
 
     @Override
