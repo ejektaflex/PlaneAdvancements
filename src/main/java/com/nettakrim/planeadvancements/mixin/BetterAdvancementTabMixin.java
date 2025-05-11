@@ -101,6 +101,10 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @Inject(at = @At("TAIL"), method = "scroll")
     private void fixPan(double x, double y, int width, int height, CallbackInfo ci) {
+        if (PlaneAdvancementsClient.treeType != TreeType.SPRING) {
+            return;
+        }
+
         if (maxX - minX <= width) {
             scrollX = (width - (maxX + minX))/2;
         }
