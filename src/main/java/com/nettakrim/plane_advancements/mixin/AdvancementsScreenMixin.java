@@ -60,8 +60,8 @@ public class AdvancementsScreenMixin extends Screen {
             PlaneAdvancementsClient.draggedWidget = null;
         }
 
-        if (keyCode == InputUtil.GLFW_KEY_H) {
-            PlaneAdvancementsClient.lineType.put(PlaneAdvancementsClient.treeType, PlaneAdvancementsClient.getCurrentLinetype().next());
+        if (keyCode == InputUtil.GLFW_KEY_H && PlaneAdvancementsClient.treeType == TreeType.SPRING) {
+            PlaneAdvancementsClient.springLineIsAngled = !PlaneAdvancementsClient.springLineIsAngled;
         }
     }
 
