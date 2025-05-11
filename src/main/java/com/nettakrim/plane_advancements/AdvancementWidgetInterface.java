@@ -74,7 +74,7 @@ public interface AdvancementWidgetInterface {
         MatrixStack matrixStack = context.getMatrices();
         matrixStack.push();
 
-        if (PlaneAdvancementsClient.getCurrentLinetype() == LineType.ROTATED) {
+        if (PlaneAdvancementsClient.getCurrentLineType() == LineType.ROTATED) {
             matrixStack.translate(x+startX + 16.5, y+startY + 13.5, 0);
             matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));
             int distance = MathHelper.floor(MathHelper.sqrt(offsetX*offsetX + offsetY*offsetY));

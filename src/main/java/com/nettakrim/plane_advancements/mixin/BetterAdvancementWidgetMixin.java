@@ -58,7 +58,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @WrapMethod(method = "drawConnection")
     private void renderLines(DrawContext context, betteradvancements.common.gui.BetterAdvancementWidget parent, int x, int y, boolean border, Operation<Void> original) {
-        if (PlaneAdvancementsClient.getCurrentLinetype() == LineType.DEFAULT) {
+        if (PlaneAdvancementsClient.getCurrentLineType() == LineType.DEFAULT) {
             original.call(context, parent, x, y, border);
             return;
         }
