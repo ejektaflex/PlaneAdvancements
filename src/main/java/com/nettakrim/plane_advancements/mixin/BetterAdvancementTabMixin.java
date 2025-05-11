@@ -35,6 +35,8 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
     @Unique
     private int temperature = -1;
 
+    @Unique private TreeType currentType = TreeType.DEFAULT;
+
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lbetteradvancements/common/gui/BetterAdvancementWidget;drawConnectivity(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "drawContents")
     private boolean renderLines(BetterAdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
         // remove root lines for grid mode
@@ -55,11 +57,13 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
         // shadowing centered is inconsistent, for some reason
         if (temperature == -1) {
             planeAdvancements$arrangeIntoGrid();
-            if (PlaneAdvancementsClient.treeType != TreeType.DEFAULT) {
-                planeAdvancements$updateRange();
-                planeAdvancements$centerPan(width, height);
-            }
             planeAdvancements$heatGraph();
+        }
+
+        if (currentType != PlaneAdvancementsClient.treeType) {
+            // update positions if type has changed without an update
+            planeAdvancements$updateRange();
+            planeAdvancements$centerPan(width, height);
         }
 
         if (temperature <= 0) {
@@ -127,6 +131,8 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @Override
     public void planeAdvancements$updateRange() {
+        currentType = PlaneAdvancementsClient.treeType;
+
         minX = Integer.MAX_VALUE;
         maxX = Integer.MIN_VALUE;
         minY = Integer.MAX_VALUE;
@@ -143,10 +149,6 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
             maxX = Math.max(maxX, j);
             minY = Math.min(minY, k);
             maxY = Math.max(maxY, l);
-        }
-
-        for (BetterAdvancementWidget widget : widgets.values()) {
-            ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
         }
     }
 

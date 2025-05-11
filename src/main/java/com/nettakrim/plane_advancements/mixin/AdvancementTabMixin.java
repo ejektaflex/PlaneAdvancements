@@ -36,6 +36,8 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Unique private int temperature;
 
+    @Unique private TreeType currentType = TreeType.DEFAULT;
+
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementWidget;renderLines(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "render")
     private boolean renderLines(AdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
         // remove root lines for grid mode
@@ -55,11 +57,13 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
         if (!initialized) {
             planeAdvancements$arrangeIntoGrid();
-            if (PlaneAdvancementsClient.treeType != TreeType.DEFAULT) {
-                planeAdvancements$updateRange();
-                planeAdvancements$centerPan(117, 56);
-            }
             planeAdvancements$heatGraph();
+        }
+
+        if (currentType != PlaneAdvancementsClient.treeType) {
+            // update positions if type has changed without an update
+            planeAdvancements$updateRange();
+            planeAdvancements$centerPan(117, 56);
         }
 
         if (temperature <= 0) {
@@ -117,6 +121,8 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public void planeAdvancements$updateRange() {
+        currentType = PlaneAdvancementsClient.treeType;
+
         minPanX = Integer.MAX_VALUE;
         maxPanX = Integer.MIN_VALUE;
         minPanY = Integer.MAX_VALUE;
@@ -138,6 +144,11 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         // min pan only works as 0, so if it does extend too far, everything needs to be offset to compensate
         int offsetX = MathHelper.ceil(-minPanX/16f)*16;
         int offsetY = MathHelper.ceil(-minPanY/16f)*16;
+
+        if (offsetX == 0 && offsetY == 0) {
+            return;
+        }
+
         minPanX = 0;
         minPanY = 0;
         maxPanX += offsetX;
