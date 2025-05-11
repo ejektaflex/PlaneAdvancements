@@ -67,7 +67,7 @@ public interface AdvancementWidgetInterface {
         }
     }
 
-    static void renderLines(DrawContext context, int x, int y, int startX, int startY, int endX, int endY, boolean border) {
+    static void renderLines(DrawContext context, int x, int y, int startX, int startY, int endX, int endY, boolean border, int innerColor) {
         int offsetX = endX-startX;
         int offsetY = endY-startY;
 
@@ -82,7 +82,7 @@ public interface AdvancementWidgetInterface {
                 context.drawHorizontalLine(0, distance, -1, -16777216);
                 context.drawHorizontalLine(0, distance, 1, -16777216);
             } else {
-                context.drawHorizontalLine(0, distance, 0, -1);
+                context.drawHorizontalLine(0, distance, 0, innerColor);
             }
         } else {
             matrixStack.translate(x+startX + 15.5, y+startY + 12.5, 0);
@@ -102,8 +102,8 @@ public interface AdvancementWidgetInterface {
                 context.drawVerticalLine(xPos-1, yLength+offsetY, -offsetY, -16777216);
                 context.drawVerticalLine(xPos+1, yLength+offsetY, -offsetY, -16777216);
             } else {
-                context.drawHorizontalLine(0, xLength, yPos, -1);
-                context.drawVerticalLine(xPos, yLength, 0, -1);
+                context.drawHorizontalLine(0, xLength, yPos, innerColor);
+                context.drawVerticalLine(xPos, yLength, 0, innerColor);
             }
         }
 

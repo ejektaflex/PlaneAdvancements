@@ -3,6 +3,7 @@ package com.nettakrim.plane_advancements.mixin;
 import betteradvancements.common.gui.BetterAdvancementTab;
 import betteradvancements.common.gui.BetterAdvancementWidget;
 import betteradvancements.common.gui.BetterAdvancementsScreen;
+import betteradvancements.common.advancements.BetterDisplayInfo;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -10,6 +11,7 @@ import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
 import com.nettakrim.plane_advancements.LineType;
 import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
 import net.minecraft.advancement.AdvancementDisplay;
+import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -42,6 +44,9 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Unique Vector2f treePos;
     @Unique Vector2f gridPos;
 
+    @Shadow private AdvancementProgress advancementProgress;
+    @Shadow protected BetterDisplayInfo betterDisplayInfo;
+
     @Shadow public abstract boolean isMouseOver(double scrollX, double scrollY, double mouseX, double mouseY, float zoom);
 
     @Inject(at = @At("TAIL"), method = "<init>")
@@ -59,7 +64,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         }
 
         if (parent != null) {
-            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border);
+            int innerColor = advancementProgress != null && advancementProgress.isDone() ? betterDisplayInfo.getCompletedLineColor() : betterDisplayInfo.getUnCompletedLineColor();
+            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border, innerColor);
         }
     }
 
