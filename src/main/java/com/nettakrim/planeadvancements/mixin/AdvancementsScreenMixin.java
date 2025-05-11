@@ -1,18 +1,14 @@
-package com.nettakrim.plane_advancements.mixin;
+package com.nettakrim.planeadvancements.mixin;
 
-import betteradvancements.common.gui.BetterAdvancementTab;
-import betteradvancements.common.gui.BetterAdvancementsScreen;
-import com.nettakrim.plane_advancements.AdvancementTabInterface;
-import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
-import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
-import com.nettakrim.plane_advancements.TreeType;
+import com.nettakrim.planeadvancements.*;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.advancement.AdvancementTab;
+import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,42 +17,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Iterator;
 
-@Pseudo
-@Mixin(targets = "betteradvancements.common.gui.BetterAdvancementsScreen", remap = false)
-public class BetterAdvancementsScreenMixin extends Screen {
-    @Shadow @Nullable private BetterAdvancementTab selectedTab;
+@Mixin(AdvancementsScreen.class)
+public class AdvancementsScreenMixin extends Screen {
+    @Shadow @Nullable private AdvancementTab selectedTab;
 
-    @Shadow private int internalWidth;
-    @Shadow private int internalHeight;
-
-    @Shadow private static int SIDE;
-    @Shadow private static int TOP;
-    @Shadow private static int PADDING;
-
-    protected BetterAdvancementsScreenMixin(Text title) {
+    protected AdvancementsScreenMixin(Text title) {
         super(title);
     }
 
-    @Inject(at = @At("HEAD"), method = "mouseClicked", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "mouseClicked")
     void click(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (selectedTab == null || button != 1) {
             PlaneAdvancementsClient.clearUIHover();
-            if (PlaneAdvancementsClient.hoveredUI()) {
-                super.mouseClicked(mouseX, mouseY, button);
-                cir.cancel();
-            }
             return;
         }
         PlaneAdvancementsClient.draggedWidget = null;
         AdvancementTabInterface tab = (AdvancementTabInterface)selectedTab;
 
-        int left = SIDE + (width - internalWidth) / 2;
-        int top = TOP + (height - internalHeight) / 2;
-
         double panX = tab.planeAdvancements$getPanX();
         double panY = tab.planeAdvancements$getPanY();
-        int x = MathHelper.floor(mouseX - left - PADDING);
-        int y = MathHelper.floor(mouseY - top - 2*PADDING);
+        int x = MathHelper.floor(mouseX-((this.width - 252) >> 1)-9);
+        int y = MathHelper.floor(mouseY-((this.height - 140) >> 1)-18);
 
         for (Iterator<AdvancementWidgetInterface> it = tab.planeAdvancements$getWidgets(); it.hasNext();) {
             AdvancementWidgetInterface widget = it.next();
@@ -84,7 +65,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
             }
             return;
         }
-        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX/BetterAdvancementsScreen.zoom, (float)deltaY/BetterAdvancementsScreen.zoom);
+        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX, (float)deltaY);
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$updatePos();
         assert selectedTab != null;
         ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();

@@ -1,4 +1,4 @@
-package com.nettakrim.plane_advancements;
+package com.nettakrim.planeadvancements;
 
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.client.gui.DrawContext;

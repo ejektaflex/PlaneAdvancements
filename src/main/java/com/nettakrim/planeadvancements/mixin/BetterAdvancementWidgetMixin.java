@@ -1,17 +1,20 @@
-package com.nettakrim.plane_advancements.mixin;
+package com.nettakrim.planeadvancements.mixin;
 
+import betteradvancements.common.gui.BetterAdvancementTab;
+import betteradvancements.common.gui.BetterAdvancementWidget;
+import betteradvancements.common.gui.BetterAdvancementsScreen;
+import betteradvancements.common.advancements.BetterDisplayInfo;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
-import com.nettakrim.plane_advancements.LineType;
-import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
+import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
+import com.nettakrim.planeadvancements.LineType;
+import com.nettakrim.planeadvancements.PlaneAdvancementsClient;
 import net.minecraft.advancement.AdvancementDisplay;
+import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.advancement.AdvancementTab;
-import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -23,48 +26,50 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(AdvancementWidget.class)
-public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterface {
-    @Shadow @Final @Mutable
+@Pseudo
+@Mixin(targets = "betteradvancements.common.gui.BetterAdvancementWidget", remap = false)
+public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetInterface {
+    @Shadow
     private int x;
-    @Shadow @Final @Mutable
+    @Shadow
     private int y;
 
-    @Shadow @Nullable private AdvancementWidget parent;
-    @Shadow @Final private List<AdvancementWidget> children;
+    @Shadow @Nullable
+    private BetterAdvancementWidget parent;
+    @Shadow @Final private List<BetterAdvancementWidget> children;
 
-    @Shadow @Final private AdvancementDisplay display;
+    @Shadow @Final private AdvancementDisplay displayInfo;
 
     @Unique Vector2f defaultPos;
     @Unique Vector2f treePos;
     @Unique Vector2f gridPos;
 
-    @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
+    @Shadow private AdvancementProgress advancementProgress;
+    @Shadow protected BetterDisplayInfo betterDisplayInfo;
+
+    @Shadow public abstract boolean isMouseOver(double scrollX, double scrollY, double mouseX, double mouseY, float zoom);
 
     @Inject(at = @At("TAIL"), method = "<init>")
-    void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
+    void initPos(BetterAdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
         treePos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
     }
 
-    @WrapMethod(method = "renderLines")
-    void renderLines(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
+    @WrapMethod(method = "drawConnection")
+    private void renderLines(DrawContext context, betteradvancements.common.gui.BetterAdvancementWidget parent, int x, int y, boolean border, Operation<Void> original) {
         if (PlaneAdvancementsClient.getCurrentLineType() == LineType.DEFAULT) {
-            original.call(context, x, y, border);
+            original.call(context, parent, x, y, border);
             return;
         }
 
         if (parent != null) {
-            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border, -1);
-        }
-
-        for (AdvancementWidget advancementWidget : children) {
-            advancementWidget.renderLines(context, x, y, border);
+            int innerColor = advancementProgress != null && advancementProgress.isDone() ? betterDisplayInfo.getCompletedLineColor() : betterDisplayInfo.getUnCompletedLineColor();
+            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border, innerColor);
         }
     }
 
-    @ModifyReturnValue(at = @At("RETURN"), method = "shouldRender")
+    @ModifyReturnValue(at = @At("RETURN"), method = "isMouseOver")
     private boolean forceTooltipIfDragged(boolean original) {
         if (PlaneAdvancementsClient.draggedWidget != null) {
             return PlaneAdvancementsClient.draggedWidget == this;
@@ -75,7 +80,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Override
     public List<AdvancementWidgetInterface> planeAdvancements$getChildren() {
         ArrayList<AdvancementWidgetInterface> childList = new ArrayList<>(children.size());
-        for (AdvancementWidget child : children) {
+        for (BetterAdvancementWidget child : children) {
             childList.add((AdvancementWidgetInterface)child);
         }
         return childList;
@@ -110,7 +115,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Override
     public boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY) {
-        return shouldRender((int)originX, (int)originY, mouseX, mouseY);
+        return isMouseOver(originX, originY, mouseX, mouseY, BetterAdvancementsScreen.zoom);
     }
 
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
@@ -120,7 +125,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Override
     public AdvancementDisplay planeAdvancements$getDisplay() {
-        return display;
+        return displayInfo;
     }
 
     @Override
@@ -132,13 +137,13 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
             return;
         }
 
-        for (AdvancementWidget child : children) {
+        for (BetterAdvancementWidget child : children) {
             ((AdvancementWidgetInterface)child).planeAdvancements$setGridPos(pos);
         }
     }
 
     @Override
     public boolean planeAdvancements$isRoot() {
-        return display.getX() == 0;
+        return displayInfo.getX() == 0;
     }
 }

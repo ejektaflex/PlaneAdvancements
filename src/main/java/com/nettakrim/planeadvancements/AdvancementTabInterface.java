@@ -1,4 +1,4 @@
-package com.nettakrim.plane_advancements;
+package com.nettakrim.planeadvancements;
 
 import org.joml.Vector2f;
 

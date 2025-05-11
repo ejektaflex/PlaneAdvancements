@@ -1,4 +1,4 @@
-package com.nettakrim.plane_advancements;
+package com.nettakrim.planeadvancements;
 
 import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;

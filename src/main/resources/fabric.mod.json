@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "plane_advancements",
+	"id": "planeadvancements",
 	"version": "${version}",
 	"name": "Plane Advancements",
 	"description": "Rearranges Advancements to make better use of the 2D plane they're on!",
@@ -8,18 +8,18 @@
 		"Nettakrim"
 	],
 	"contact": {
-		"sources": "https://github.com/Nettakrim/Plane-Advancements"
+		"sources": "https://github.com/Nettakrim/PlaneAdvancements"
 	},
 	"license": "LGPL-3.0",
-	"icon": "assets/plane_advancements/icon.png",
+	"icon": "assets/planeadvancements/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"client": [
-          "com.nettakrim.plane_advancements.PlaneAdvancementsClient"
+          "com.nettakrim.planeadvancements.PlaneAdvancementsClient"
 		]
 	},
 	"mixins": [
-		"plane_advancements.mixins.json"
+		"planeadvancements.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.16.9",

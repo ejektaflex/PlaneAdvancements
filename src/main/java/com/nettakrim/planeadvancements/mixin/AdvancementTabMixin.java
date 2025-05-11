@@ -1,7 +1,7 @@
-package com.nettakrim.plane_advancements.mixin;
+package com.nettakrim.planeadvancements.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.nettakrim.plane_advancements.*;
+import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;

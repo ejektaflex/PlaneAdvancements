@@ -1,4 +1,4 @@
-package com.nettakrim.plane_advancements;
+package com.nettakrim.planeadvancements;
 
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 public class PlaneAdvancementsClient implements ClientModInitializer {
-	public static final String MOD_ID = "plane_advancements";
+	public static final String MOD_ID = "planeadvancements";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	private static Path configDir;
