@@ -1,13 +1,15 @@
 package com.nettakrim.planeadvancements;
 
+import net.minecraft.util.math.MathHelper;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import java.util.Stack;
 
 public class AdvancementCluster {
     public final Vector2f pos;
-    public final Vector2f size;
+    public final Vector2i size;
     protected final float offsetY;
     protected final AdvancementWidgetInterface root;
 
@@ -15,7 +17,7 @@ public class AdvancementCluster {
         Vector3f size = getClusterSize(root);
 
         this.pos = new Vector2f(0,0);
-        this.size = new Vector2f(size.x, (size.z-size.y)+1);
+        this.size = new Vector2i(MathHelper.ceil(size.x), MathHelper.ceil((size.z-size.y)+1));
         this.offsetY = -size.y;
         this.root = root;
     }

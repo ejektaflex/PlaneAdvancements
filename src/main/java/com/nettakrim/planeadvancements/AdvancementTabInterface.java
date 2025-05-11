@@ -1,5 +1,6 @@
 package com.nettakrim.planeadvancements;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -22,63 +23,108 @@ public interface AdvancementTabInterface {
     default void planeAdvancements$arrangeIntoGrid() {
         AdvancementWidgetInterface root = planeAdvancements$getRoot();
         List<AdvancementWidgetInterface> clusterRoots = root.planeAdvancements$getChildren();
-        clusterRoots.add(root);
 
         List<AdvancementCluster> clusters = new ArrayList<>(clusterRoots.size());
         for (AdvancementWidgetInterface clusterRoot : clusterRoots) {
             clusters.add(new AdvancementCluster(clusterRoot));
         }
 
-        calculateGrid(clusters);
+        calculateGrid(new AdvancementCluster(root), clusters);
         planeAdvancements$applyClusters(clusters);
     }
 
-    static void calculateGrid(List<AdvancementCluster> clusters) {
-        //TODO: arrange better
-
-        //https://www.david-colson.com/2020/03/10/exploring-rect-packing.html
+    static void calculateGrid(AdvancementCluster root, List<AdvancementCluster> clusters) {
         clusters.sort((a, b) -> {
             int i = Float.compare(b.size.y, a.size.y);
             return i == 0 ? Float.compare(b.size.x, a.size.x) : i;
         });
 
-        float xPos = 0;
-        float yPos = 0;
-        float largestHThisRow = 0;
+        int maxWidth = 9;
+        int usedWidth = 0;
 
-        // Loop over all the rectangles
-        for (AdvancementCluster cluster : clusters)
-        {
-            // If this rectangle will go past the width of the image
-            // Then loop around to next row, using the largest height from the previous row
-            if ((xPos + cluster.size.x) > 10) {
-                yPos += largestHThisRow;
-                xPos = 0;
-                largestHThisRow = 0;
-            }
+        IntArrayList mask = new IntArrayList();
 
-            // If we go off the bottom edge of the image, then we've failed
-            if ((yPos + cluster.size.y) > 10) {
-                break;
-            }
-
-            // This is the position of the rectangle
-            cluster.pos.x = xPos;
-            cluster.pos.y = yPos;
-
-            // Move along to the next spot in the row
-            xPos += cluster.size.x;
-
-            // Just saving the largest height in the new row
-            if (cluster.size.y > largestHThisRow) {
-                largestHThisRow = cluster.size.y;
-            }
-        }
-
-        // x+y mirror
-        Vector2f v = new Vector2f(10, 10);
         for (AdvancementCluster cluster : clusters) {
-            v.sub(cluster.pos, cluster.pos).sub(cluster.size);
+            int y = 0;
+            int search = (maxWidth - cluster.size.x) + 1;
+
+            if (search <= 0) {
+                for (int i = 0; i < cluster.size.y; i++) {
+                    mask.add(Integer.MAX_VALUE);
+                }
+                cluster.pos.x = 0;
+                cluster.pos.y = y;
+                usedWidth = maxWidth;
+                continue;
+            }
+
+            while (true) {
+                int foundPosition = getFreePos(mask, cluster, search, y);
+
+                if (foundPosition >= 0) {
+                    int foundMask = getMask(cluster.size.x, foundPosition);
+                    for (int u = 0; u < cluster.size.y; u++) {
+                        int index = y+u;
+                        if (index >= mask.size()) {
+                            mask.add(foundMask);
+                        } else {
+                            mask.set(index, mask.getInt(index) | foundMask);
+                        }
+                    }
+
+                    cluster.pos.x = foundPosition;
+                    cluster.pos.y = y;
+                    usedWidth = Math.max(usedWidth, foundPosition + cluster.size.x);
+                    break;
+                }
+
+                y++;
+            }
         }
+
+        // x+y mirror to get 1x1s to the left
+        Vector2f v = new Vector2f(usedWidth+1, mask.size());
+        for (AdvancementCluster cluster : clusters) {
+            v.sub(cluster.pos, cluster.pos).sub(cluster.size.x, cluster.size.y);
+        }
+
+        root.pos.x = 0;
+        root.pos.y = (mask.size()-1)/2f;
+        clusters.add(root);
+    }
+
+    static int getFreePos(IntArrayList mask, AdvancementCluster cluster, int search, int y) {
+        if (y >= mask.size()) {
+            return 0;
+        }
+        int currentMask = mask.getInt(y);
+
+        for (int i = 0; i < search; i++) {
+            int sizeMask = getMask(cluster.size.x, i);
+            if ((currentMask & sizeMask) == 0) {
+                boolean found = true;
+
+                for (int u = 0; u < cluster.size.y; u++) {
+                    int index = y+u;
+                    if (index >= mask.size()) {
+                        return i;
+                    }
+                    if ((mask.getInt(index) & sizeMask) != 0) {
+                        found = false;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    static int getMask(int size, int position) {
+        return ((1 << size)-1) * (1 << position);
     }
 }
