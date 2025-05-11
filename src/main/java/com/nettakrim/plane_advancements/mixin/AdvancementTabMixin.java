@@ -55,8 +55,10 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
         if (!initialized) {
             planeAdvancements$arrangeIntoGrid();
-            planeAdvancements$updateRange();
-            planeAdvancements$centerPan(117, 56);
+            if (PlaneAdvancementsClient.treeType != TreeType.DEFAULT) {
+                planeAdvancements$updateRange();
+                planeAdvancements$centerPan(117, 56);
+            }
             planeAdvancements$heatGraph();
         }
 

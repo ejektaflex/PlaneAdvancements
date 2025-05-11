@@ -55,8 +55,10 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
         // shadowing centered is inconsistent, for some reason
         if (temperature == -1) {
             planeAdvancements$arrangeIntoGrid();
-            planeAdvancements$updateRange();
-            planeAdvancements$centerPan(width, height);
+            if (PlaneAdvancementsClient.treeType != TreeType.DEFAULT) {
+                planeAdvancements$updateRange();
+                planeAdvancements$centerPan(width, height);
+            }
             planeAdvancements$heatGraph();
         }
 
@@ -140,8 +142,8 @@ public class BetterAdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public void planeAdvancements$centerPan(int width, int height) {
-        this.scrollX = width - ((this.maxX + this.minX) >> 1);
-        this.scrollY = height - ((this.maxY + this.minY) >> 1);
+        this.scrollX = (width - (this.maxX + this.minX))/2;
+        this.scrollY = (height - (this.maxY + this.minY))/2;
     }
 
     @Override

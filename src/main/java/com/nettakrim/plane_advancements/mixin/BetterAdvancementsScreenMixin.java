@@ -1,6 +1,7 @@
 package com.nettakrim.plane_advancements.mixin;
 
 import betteradvancements.common.gui.BetterAdvancementTab;
+import betteradvancements.common.gui.BetterAdvancementsScreen;
 import com.nettakrim.plane_advancements.AdvancementTabInterface;
 import com.nettakrim.plane_advancements.AdvancementWidgetInterface;
 import com.nettakrim.plane_advancements.PlaneAdvancementsClient;
@@ -107,7 +108,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
         if (PlaneAdvancementsClient.draggedWidget == null || PlaneAdvancementsClient.treeType != TreeType.SPRING) {
             return;
         }
-        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX, (float)deltaY);
+        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX/BetterAdvancementsScreen.zoom, (float)deltaY/BetterAdvancementsScreen.zoom);
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$updatePos();
         assert selectedTab != null;
         ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();
