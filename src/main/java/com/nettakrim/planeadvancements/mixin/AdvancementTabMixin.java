@@ -38,6 +38,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
+    @Unique private boolean calculatedGrid;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementWidget;renderLines(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "render")
     private boolean renderLines(AdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
@@ -57,11 +58,14 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
         if (!initialized) {
-            planeAdvancements$arrangeIntoGrid();
             planeAdvancements$heatGraph();
         }
 
         if (currentType != PlaneAdvancementsClient.treeType) {
+            if (!calculatedGrid && PlaneAdvancementsClient.treeType == TreeType.GRID) {
+                planeAdvancements$arrangeIntoGrid();
+                calculatedGrid = true;
+            }
             planeAdvancements$updateRange();
             planeAdvancements$centerPan(117, 56);
         }

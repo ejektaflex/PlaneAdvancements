@@ -37,6 +37,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
+    @Unique private boolean calculatedGrid;
 
     @WrapWithCondition(at = @At(value = "INVOKE", target = "Lbetteradvancements/common/gui/BetterAdvancementWidget;drawConnectivity(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "drawContents")
     private boolean renderLines(BetterAdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
@@ -57,11 +58,14 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
     private void render(DrawContext context, int left, int top, int width, int height, float zoom, CallbackInfo ci) {
         // shadowing centered is inconsistent, for some reason
         if (temperature == -1) {
-            planeAdvancements$arrangeIntoGrid();
             planeAdvancements$heatGraph();
         }
 
         if (currentType != PlaneAdvancementsClient.treeType) {
+            if (!calculatedGrid && PlaneAdvancementsClient.treeType == TreeType.GRID) {
+                planeAdvancements$arrangeIntoGrid();
+                calculatedGrid = true;
+            }
             planeAdvancements$updateRange();
             planeAdvancements$centerPan(width, height);
         }
