@@ -47,13 +47,13 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
 
         if (currentGridWidth != PlaneAdvancementsClient.gridWidth && PlaneAdvancementsClient.treeType == TreeType.GRID) {
             planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
-            planeAdvancements$updateRange();
+            planeAdvancements$updateRange(117, 56);
             planeAdvancements$centerPan(117, 56);
             currentGridWidth = PlaneAdvancementsClient.gridWidth;
         }
 
         if (currentType != PlaneAdvancementsClient.treeType) {
-            planeAdvancements$updateRange();
+            planeAdvancements$updateRange(117, 56);
             planeAdvancements$centerPan(117, 56);
         }
 
@@ -81,7 +81,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
             // == 1 so it updates on the last update tick
             if (temperature%60 == 1) {
-                planeAdvancements$updateRange();
+                planeAdvancements$updateRange(117, 56);
             } else {
                 for (AdvancementWidget widget : widgets.values()) {
                     ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
@@ -116,7 +116,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     }
 
     @Override
-    public void planeAdvancements$updateRange() {
+    public void planeAdvancements$updateRange(int width, int height) {
         currentType = PlaneAdvancementsClient.treeType;
 
         minPanX = Integer.MAX_VALUE;
@@ -135,6 +135,17 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             maxPanX = Math.max(maxPanX, j);
             minPanY = Math.min(minPanY, k);
             maxPanY = Math.max(maxPanY, l);
+        }
+
+        int paddingX = PlaneAdvancementsClient.treeType == TreeType.SPRING ? width/2 : 16;
+        int paddingY = PlaneAdvancementsClient.treeType == TreeType.SPRING ? height/2 : 16;
+        if (maxPanX - minPanX > width) {
+            minPanX -= paddingX;
+            maxPanX += paddingX;
+        }
+        if (maxPanY - minPanY > height) {
+            minPanY -= paddingY;
+            maxPanY += paddingY;
         }
 
         // min pan only works as 0, so if it does extend too far, everything needs to be offset to compensate
