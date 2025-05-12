@@ -12,6 +12,7 @@ import net.fabricmc.api.ClientModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.advancement.Advancement;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
@@ -30,7 +31,9 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class PlaneAdvancementsClient implements ClientModInitializer {
@@ -44,12 +47,16 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
     public static boolean angledLines = true;
 	public static int gridWidth = 10;
 
+	public static boolean merged = false;
+
 	public static AdvancementWidgetInterface draggedWidget;
 
 	public static ButtonWidget treeButton;
 	public static ButtonWidget lineButton;
 	public static SliderWidget repulsionSlider;
 	public static SliderWidget gridWidthSlider;
+
+	public static Map<Advancement, TreePosition> positions = new HashMap<>();
 
 	@Override
 	public void onInitializeClient() {

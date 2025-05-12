@@ -36,8 +36,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Shadow @Final private AdvancementDisplay displayInfo;
 
     @Unique Vector2f defaultPos;
-    @Unique Vector2f treePos;
     @Unique Vector2f gridPos;
+    @Unique TreePosition treePos;
 
     @Unique boolean isClusterRoot;
 
@@ -52,8 +52,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Inject(at = @At("TAIL"), method = "<init>")
     void initPos(@Coerce AdvancementTabInterface tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
-        treePos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
+        treePos = PlaneAdvancementsClient.positions.computeIfAbsent(advancement.getAdvancement(), k -> new TreePosition(x, y));
 
         try {
             //noinspection ReferenceToMixin
@@ -120,7 +120,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Override
     public Vector2f planeAdvancements$getTreePos() {
-        return treePos;
+        return treePos.getCurrentPosition();
     }
 
     @Override

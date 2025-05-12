@@ -3,10 +3,7 @@ package com.nettakrim.planeadvancements.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
-import com.nettakrim.planeadvancements.LineType;
-import com.nettakrim.planeadvancements.PlaneAdvancementsClient;
-import com.nettakrim.planeadvancements.TreeType;
+import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.MinecraftClient;
@@ -36,8 +33,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Shadow @Final private AdvancementDisplay display;
 
     @Unique Vector2f defaultPos;
-    @Unique Vector2f treePos;
     @Unique Vector2f gridPos;
+    @Unique TreePosition treePos;
 
     @Unique boolean isClusterRoot;
 
@@ -48,8 +45,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Inject(at = @At("TAIL"), method = "<init>")
     void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
-        treePos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
+        treePos = PlaneAdvancementsClient.positions.computeIfAbsent(advancement.getAdvancement(), k -> new TreePosition(x, y));
     }
 
     @WrapMethod(method = "renderLines")
@@ -108,7 +105,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Override
     public Vector2f planeAdvancements$getTreePos() {
-        return treePos;
+        return treePos.getCurrentPosition();
     }
 
     @Override
