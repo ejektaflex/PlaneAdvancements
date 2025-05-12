@@ -1,6 +1,5 @@
 package com.nettakrim.planeadvancements.mixin;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
@@ -39,21 +38,6 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
     @Unique private boolean calculatedGrid;
-
-    @WrapWithCondition(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementWidget;renderLines(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "render")
-    private boolean renderLines(AdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
-        // remove root lines for grid mode
-        if (PlaneAdvancementsClient.treeType != TreeType.GRID) {
-            return true;
-        }
-
-        for (AdvancementWidgetInterface child : ((AdvancementWidgetInterface)instance).planeAdvancements$getChildren()) {
-            for (AdvancementWidgetInterface childChild : child.planeAdvancements$getChildren()) {
-                ((AdvancementWidget)childChild).renderLines(context, x, y, border);
-            }
-        }
-        return false;
-    }
 
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {

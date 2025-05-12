@@ -1,7 +1,6 @@
 package com.nettakrim.planeadvancements.mixin;
 
 import betteradvancements.common.gui.BetterAdvancementWidget;
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
@@ -39,26 +38,12 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
     @Unique private boolean calculatedGrid;
 
-    @WrapWithCondition(at = @At(value = "INVOKE", target = "Lbetteradvancements/common/gui/BetterAdvancementWidget;drawConnectivity(Lnet/minecraft/client/gui/DrawContext;IIZ)V"), method = "drawContents")
-    private boolean renderLines(BetterAdvancementWidget instance, DrawContext context, int x, int y, boolean border) {
-        // remove root lines for grid mode
-        if (PlaneAdvancementsClient.treeType != TreeType.GRID) {
-            return true;
-        }
-
-        for (AdvancementWidgetInterface child : ((AdvancementWidgetInterface)instance).planeAdvancements$getChildren()) {
-            for (AdvancementWidgetInterface childChild : child.planeAdvancements$getChildren()) {
-                ((BetterAdvancementWidget)childChild).drawConnectivity(context, x, y, border);
-            }
-        }
-        return false;
-    }
-
     @Inject(at = @At("HEAD"), method = "drawContents")
     private void render(DrawContext context, int left, int top, int width, int height, float zoom, CallbackInfo ci) {
         // shadowing centered is inconsistent, for some reason
         if (temperature == -1) {
             planeAdvancements$heatGraph();
+            planeAdvancements$centerPan(width, height);
         }
 
         if (currentType != PlaneAdvancementsClient.treeType) {

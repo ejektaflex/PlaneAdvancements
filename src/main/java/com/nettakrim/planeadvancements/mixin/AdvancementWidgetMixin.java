@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
 import com.nettakrim.planeadvancements.LineType;
 import com.nettakrim.planeadvancements.PlaneAdvancementsClient;
+import com.nettakrim.planeadvancements.TreeType;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.MinecraftClient;
@@ -39,6 +40,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Unique Vector2f treePos;
     @Unique Vector2f gridPos;
 
+    @Unique boolean isClusterRoot;
+
     @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
 
     @Inject(at = @At("TAIL"), method = "<init>")
@@ -50,6 +53,14 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @WrapMethod(method = "renderLines")
     void renderLines(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
+        // remove root lines for grid mode
+        if (isClusterRoot && PlaneAdvancementsClient.treeType == TreeType.GRID) {
+            for (AdvancementWidget advancementWidget : children) {
+                advancementWidget.renderLines(context, x, y, border);
+            }
+            return;
+        }
+
         if (PlaneAdvancementsClient.getCurrentLineType() == LineType.DEFAULT) {
             original.call(context, x, y, border);
             return;
@@ -128,17 +139,26 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
         gridPos.add(pos);
         planeAdvancements$updatePos();
 
-        if (planeAdvancements$isRoot()) {
-            return;
-        }
-
         for (AdvancementWidget child : children) {
-            ((AdvancementWidgetInterface)child).planeAdvancements$setGridPos(pos);
+            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)child;
+            if (!ducky.planeAdvancements$isClusterRoot()) {
+                ducky.planeAdvancements$setGridPos(pos);
+            }
         }
     }
 
     @Override
     public boolean planeAdvancements$isRoot() {
         return display.getX() == 0;
+    }
+
+    @Override
+    public void planeAdvancements$setClusterRoot(boolean isClusterRoot) {
+        this.isClusterRoot = isClusterRoot;
+    }
+
+    @Override
+    public boolean planeAdvancements$isClusterRoot() {
+        return isClusterRoot;
     }
 }

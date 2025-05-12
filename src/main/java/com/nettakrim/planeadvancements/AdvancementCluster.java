@@ -2,7 +2,6 @@ package com.nettakrim.planeadvancements;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.util.math.MathHelper;
-import org.apache.commons.lang3.NotImplementedException;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -16,16 +15,22 @@ public class AdvancementCluster {
     protected final AdvancementWidgetInterface root;
 
     public AdvancementCluster(AdvancementWidgetInterface root) {
-        Vector3f size = getClusterSize(root);
+        this(root, root.planeAdvancements$isRoot() ? root : null);
+    }
+
+    public AdvancementCluster(AdvancementWidgetInterface root, AdvancementWidgetInterface ignoreChildrenFrom) {
+        Vector3f size = getClusterSize(root, ignoreChildrenFrom);
 
         this.pos = new Vector2f(0,0);
         this.size = new Vector2i(MathHelper.ceil(size.x), MathHelper.ceil((size.z-size.y)+1));
         this.offsetY = -size.y;
         this.root = root;
+
+        root.planeAdvancements$setClusterRoot(true);
     }
 
-    public static Vector3f getClusterSize(AdvancementWidgetInterface root) {
-        if (root.planeAdvancements$isRoot()) {
+    public static Vector3f getClusterSize(AdvancementWidgetInterface root, AdvancementWidgetInterface ignoreChildrenFrom) {
+        if (root == ignoreChildrenFrom) {
             return new Vector3f(1,0,0);
         }
 
@@ -33,18 +38,23 @@ public class AdvancementCluster {
         float heightMax = 0;
         float heightMin = 0;
 
+        float rootX = root.planeAdvancements$getDisplay().getX()-1;
+        float rootY = root.planeAdvancements$getDisplay().getY();
+
         Stack<AdvancementWidgetInterface> stack = new Stack<>();
         stack.addAll(root.planeAdvancements$getChildren());
         while (!stack.isEmpty()) {
             AdvancementWidgetInterface advancement = stack.pop();
-            stack.addAll(advancement.planeAdvancements$getChildren());
+            if (advancement != ignoreChildrenFrom) {
+                stack.addAll(advancement.planeAdvancements$getChildren());
+            }
 
-            float width = advancement.planeAdvancements$getDisplay().getX();
+            float width = advancement.planeAdvancements$getDisplay().getX()-rootX;
             if (width > widthMax) {
                 widthMax = width;
             }
 
-            float height = advancement.planeAdvancements$getDisplay().getY()-root.planeAdvancements$getDisplay().getY();
+            float height = advancement.planeAdvancements$getDisplay().getY()-rootY;
             if (height > heightMax) {
                 heightMax = height;
             }
@@ -66,29 +76,59 @@ public class AdvancementCluster {
     }
 
     public static List<AdvancementCluster> getGridClusters(AdvancementWidgetInterface root) {
-        List<AdvancementWidgetInterface> clusterRoots = root.planeAdvancements$getChildren();
-
-        List<AdvancementCluster> clusters;
-
-        if (clusterRoots.size() > 1) {
-            clusters = new ArrayList<>(clusterRoots.size());
-            for (AdvancementWidgetInterface clusterRoot : clusterRoots) {
-                clusters.add(new AdvancementCluster(clusterRoot));
-            }
-        } else {
-            clusters = AdvancementCluster.getSplitCluster(root);
-        }
-
-        calculateGrid(new AdvancementCluster(root), clusters);
+        List<AdvancementCluster> clusters = root.planeAdvancements$getChildren().size() > 1 ? getChildClusters(root) : getSplitClusters(root);
+        calculateGrid(clusters);
         return clusters;
     }
 
-    private static List<AdvancementCluster> getSplitCluster(AdvancementWidgetInterface root) {
-        // split on node with most children
-        throw new NotImplementedException();
+    private static List<AdvancementCluster> getSplitClusters(AdvancementWidgetInterface root) {
+        // split on node with most children 3 or more, breadth first
+        Queue<AdvancementWidgetInterface> queue = new ArrayDeque<>(root.planeAdvancements$getChildren());
+
+        AdvancementWidgetInterface mostChildrenWidget = null;
+        int mostChildrenCount = 2;
+
+        while (!queue.isEmpty()) {
+            AdvancementWidgetInterface widget = queue.remove();
+
+            List<AdvancementWidgetInterface> children = widget.planeAdvancements$getChildren();
+            queue.addAll(children);
+
+            if (children.size() > mostChildrenCount) {
+                mostChildrenWidget = widget;
+                mostChildrenCount = children.size();
+            }
+        }
+
+        // if nothing is found, just split as normal
+        if (mostChildrenWidget == null) {
+            return getChildClusters(root);
+        }
+
+        List<AdvancementCluster> clusters = new ArrayList<>();
+        for (AdvancementWidgetInterface clusterRoot : mostChildrenWidget.planeAdvancements$getChildren()) {
+            clusters.add(new AdvancementCluster(clusterRoot));
+        }
+        clusters.add(new AdvancementCluster(root.planeAdvancements$getChildren().getFirst(), mostChildrenWidget));
+        clusters.add(new AdvancementCluster(root));
+
+        return clusters;
     }
 
-    private static void calculateGrid(AdvancementCluster root, List<AdvancementCluster> clusters) {
+    private static List<AdvancementCluster> getChildClusters(AdvancementWidgetInterface root) {
+        List<AdvancementWidgetInterface> clusterRoots = root.planeAdvancements$getChildren();
+
+        List<AdvancementCluster> clusters = new ArrayList<>(clusterRoots.size());
+        for (AdvancementWidgetInterface clusterRoot : clusterRoots) {
+            clusters.add(new AdvancementCluster(clusterRoot));
+        }
+        clusters.add(new AdvancementCluster(root));
+        return clusters;
+    }
+
+    private static void calculateGrid(List<AdvancementCluster> clusters) {
+        AdvancementCluster root = clusters.removeLast();
+
         //sort bigger clusters to start of the list
         clusters.sort((a, b) -> {
             int i = Float.compare(b.size.y, a.size.y);
@@ -200,9 +240,10 @@ public class AdvancementCluster {
             }
         }
 
-        // set root position, then add it to list, so it's position gets applied later
+        // set root position, then add it back to list, so it's position gets applied later
         root.pos.x = 0;
         root.pos.y = (mask.size()-1)/2f;
+        clusters.add(root);
     }
 
     private static int getFreePos(IntArrayList mask, AdvancementCluster cluster, int search, int y) {
