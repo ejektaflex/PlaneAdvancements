@@ -7,10 +7,7 @@ import betteradvancements.common.advancements.BetterDisplayInfo;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
-import com.nettakrim.planeadvancements.LineType;
-import com.nettakrim.planeadvancements.PlaneAdvancementsClient;
-import com.nettakrim.planeadvancements.TreeType;
+import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.advancement.PlacedAdvancement;
@@ -21,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -37,7 +35,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Shadow @Nullable
     private BetterAdvancementWidget parent;
-    @Shadow @Final private List<BetterAdvancementWidget> children;
+    @Shadow @Final private List<AdvancementWidgetInterface> children;
 
     @Shadow @Final private AdvancementDisplay displayInfo;
 
@@ -52,8 +50,10 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Shadow public abstract boolean isMouseOver(double scrollX, double scrollY, double mouseX, double mouseY, float zoom);
 
+    @Shadow public abstract void drawConnectivity(DrawContext context, int x, int y, boolean border);
+
     @Inject(at = @At("TAIL"), method = "<init>")
-    void initPos(BetterAdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
+    void initPos(@Coerce AdvancementTabInterface tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
         treePos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
@@ -63,8 +63,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     private void removeGridRoots(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
         // remove root lines for grid mode
         if (isClusterRoot && PlaneAdvancementsClient.treeType == TreeType.GRID) {
-            for (BetterAdvancementWidget advancementWidget : children) {
-                advancementWidget.drawConnectivity(context, x, y, border);
+            for (AdvancementWidgetInterface advancementWidget : children) {
+                advancementWidget.planeAdvancements$renderLines(context, x, y, border);
             }
             return;
         }
@@ -73,7 +73,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     @WrapMethod(method = "drawConnection")
-    private void renderLines(DrawContext context, betteradvancements.common.gui.BetterAdvancementWidget parent, int x, int y, boolean border, Operation<Void> original) {
+    private void renderLines(DrawContext context, @Coerce AdvancementWidgetInterface parent, int x, int y, boolean border, Operation<Void> original) {
         if (PlaneAdvancementsClient.getCurrentLineType() == LineType.DEFAULT) {
             original.call(context, parent, x, y, border);
             return;
@@ -81,7 +81,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
         if (parent != null) {
             int innerColor = advancementProgress != null && advancementProgress.isDone() ? betterDisplayInfo.getCompletedLineColor() : betterDisplayInfo.getUnCompletedLineColor();
-            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border, innerColor);
+            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.planeAdvancements$getX(), parent.planeAdvancements$getY(), border, innerColor);
         }
     }
 
@@ -95,11 +95,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Override
     public List<AdvancementWidgetInterface> planeAdvancements$getChildren() {
-        ArrayList<AdvancementWidgetInterface> childList = new ArrayList<>(children.size());
-        for (BetterAdvancementWidget child : children) {
-            childList.add((AdvancementWidgetInterface)child);
-        }
-        return childList;
+        return new ArrayList<>(children);
     }
 
     @Override
@@ -131,7 +127,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Override
     public boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY) {
-        return isMouseOver(originX, originY, mouseX, mouseY, BetterAdvancementsScreen.zoom);
+        return isMouseOver(originX, originY, mouseX, mouseY, BetterAdvancementsScreenAccessor.getZoom());
     }
 
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
@@ -149,10 +145,9 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         defaultPos.add(pos, gridPos);
         planeAdvancements$updatePos();
 
-        for (BetterAdvancementWidget child : children) {
-            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)child;
-            if (!ducky.planeAdvancements$isClusterRoot()) {
-                ducky.planeAdvancements$setGridPos(pos);
+        for (AdvancementWidgetInterface child : children) {
+            if (!child.planeAdvancements$isClusterRoot()) {
+                child.planeAdvancements$setGridPos(pos);
             }
         }
     }
@@ -170,5 +165,20 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Override
     public boolean planeAdvancements$isClusterRoot() {
         return isClusterRoot;
+    }
+
+    @Override
+    public int planeAdvancements$getX() {
+        return x;
+    }
+
+    @Override
+    public int planeAdvancements$getY() {
+        return y;
+    }
+
+    @Override
+    public void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border) {
+        drawConnectivity(context, x, y, border);
     }
 }

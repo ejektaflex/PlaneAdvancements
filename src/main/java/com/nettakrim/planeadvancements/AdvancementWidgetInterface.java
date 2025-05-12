@@ -112,4 +112,8 @@ public interface AdvancementWidgetInterface {
 
         matrixStack.pop();
     }
+
+    int planeAdvancements$getX();
+    int planeAdvancements$getY();
+    void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border);
 }

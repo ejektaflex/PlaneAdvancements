@@ -12,8 +12,7 @@ public interface AdvancementTabInterface {
     double planeAdvancements$getPanX();
     double planeAdvancements$getPanY();
     void planeAdvancements$centerPan(int width, int height);
-
-    void planeAdvancements$updateRange();
+    void planeAdvancements$updateRange(int width, int height);
 
     void planeAdvancements$heatGraph();
     void planeAdvancements$applyClusters(List<AdvancementCluster> clusters);

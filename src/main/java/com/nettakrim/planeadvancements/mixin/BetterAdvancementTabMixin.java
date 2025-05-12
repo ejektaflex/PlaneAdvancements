@@ -19,7 +19,7 @@ import java.util.Map;
 public abstract class BetterAdvancementTabMixin implements AdvancementTabInterface {
     @Shadow
     @Final
-    private Map<AdvancementEntry, BetterAdvancementWidget> widgets;
+    private Map<AdvancementEntry, AdvancementWidgetInterface> widgets;
 
     @Shadow private int minX;
     @Shadow private int maxX;
@@ -71,10 +71,9 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
         // always update spring graph forces, so that it can settle while not visible
         int steps = MathHelper.ceil(MathHelper.sqrt(temperature /10f));
         for (int i = 0; i < steps; i++) {
-            for (BetterAdvancementWidget widgetA : widgets.values()) {
-                AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) widgetA;
-                for (BetterAdvancementWidget widgetB : widgets.values()) {
-                    ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface) widgetB, 0.1f, PlaneAdvancementsClient.repulsion);
+            for (AdvancementWidgetInterface widgetA : widgets.values()) {
+                for (AdvancementWidgetInterface widgetB : widgets.values()) {
+                    widgetA.planeAdvancements$applySpringForce(widgetB, 0.1f, PlaneAdvancementsClient.repulsion);
                 }
             }
         }
@@ -84,8 +83,8 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
             if (temperature%60 == 1) {
                 planeAdvancements$updateRange(width, height);
             } else {
-                for (BetterAdvancementWidget widget : widgets.values()) {
-                    ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
+                for (AdvancementWidgetInterface widget : widgets.values()) {
+                    widget.planeAdvancements$updatePos();
                 }
             }
         }
@@ -112,7 +111,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @Override
     public Iterator<AdvancementWidgetInterface> planeAdvancements$getWidgets() {
-        return widgets.values().stream().map(w -> (AdvancementWidgetInterface)w).iterator();
+        return widgets.values().stream().iterator();
     }
 
     @Override
@@ -139,12 +138,12 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
         minY = Integer.MAX_VALUE;
         maxY = Integer.MIN_VALUE;
 
-        for (BetterAdvancementWidget widget : widgets.values()) {
-            ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
+        for (AdvancementWidgetInterface widget : widgets.values()) {
+            widget.planeAdvancements$updatePos();
 
-            int i = widget.getX();
+            int i = widget.planeAdvancements$getX();
             int j = i + 28;
-            int k = widget.getY();
+            int k = widget.planeAdvancements$getY();
             int l = k + 27;
             minX = Math.min(minX, i);
             maxX = Math.max(maxX, j);

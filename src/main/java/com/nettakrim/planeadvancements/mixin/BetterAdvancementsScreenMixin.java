@@ -37,7 +37,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
         super(title);
     }
 
-    @Inject(at = @At("HEAD"), method = "method_25402", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "mouseClicked", cancellable = true, remap = true)
     void click(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (selectedTab == null || button != 1) {
             PlaneAdvancementsClient.clearUIHover();
@@ -75,7 +75,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    @Inject(at = @At("HEAD"), method = "method_25403", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "mouseDragged", cancellable = true, remap = true)
     void drag(double mouseX, double mouseY, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
         if (PlaneAdvancementsClient.draggedWidget == null || PlaneAdvancementsClient.treeType != TreeType.SPRING) {
             if (PlaneAdvancementsClient.selectedUI()) {
@@ -84,7 +84,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
             }
             return;
         }
-        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX/BetterAdvancementsScreen.zoom, (float)deltaY/BetterAdvancementsScreen.zoom);
+        PlaneAdvancementsClient.draggedWidget.planeAdvancements$getTreePos().add((float)deltaX/BetterAdvancementsScreenAccessor.getZoom(), (float)deltaY/BetterAdvancementsScreenAccessor.getZoom());
         PlaneAdvancementsClient.draggedWidget.planeAdvancements$updatePos();
         assert selectedTab != null;
         ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();
@@ -92,12 +92,12 @@ public class BetterAdvancementsScreenMixin extends Screen {
         cir.cancel();
     }
 
-    @Inject(at = @At("TAIL"), method = "method_25394")
+    @Inject(at = @At("TAIL"), method = "render", remap = true)
     void render(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         PlaneAdvancementsClient.renderUI(context, mouseX, mouseY, tickDelta);
     }
 
-    @Inject(at = @At("TAIL"), method = "method_25426")
+    @Inject(at = @At("TAIL"), method = "init", remap = true)
     void init(CallbackInfo ci) {
         addSelectableChild(PlaneAdvancementsClient.treeButton);
         addSelectableChild(PlaneAdvancementsClient.repulsionSlider);
