@@ -1,6 +1,5 @@
 package com.nettakrim.planeadvancements.mixin;
 
-import betteradvancements.common.advancements.BetterDisplayInfo;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("UnresolvedMixinReference")
 @Pseudo
 @Mixin(targets = "betteradvancements.common.gui.BetterAdvancementWidget", remap = false)
 public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetInterface {
@@ -30,8 +30,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Shadow
     private int y;
 
-    @Shadow @Nullable
-    private BetterAdvancementWidgetMixin parent;
+    @Unique @Nullable
+    private AdvancementWidgetInterface parent;
     @Shadow @Final private List<AdvancementWidgetInterface> children;
 
     @Shadow @Final private AdvancementDisplay displayInfo;
@@ -43,7 +43,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Unique boolean isClusterRoot;
 
     @Shadow private AdvancementProgress advancementProgress;
-    @Shadow protected BetterDisplayInfo betterDisplayInfo;
+    @SuppressWarnings("ReferenceToMixin") // perhaps because it is Pseudo, it gives a warning despite being an Accessor
+    @Unique protected BetterDisplayInfoAccessor betterDisplayInfoAccessor;
 
     @Shadow public abstract boolean isMouseOver(double scrollX, double scrollY, double mouseX, double mouseY, float zoom);
 
@@ -54,6 +55,12 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         defaultPos = new Vector2f(x, y);
         treePos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
+
+        try {
+            //noinspection ReferenceToMixin
+            betterDisplayInfoAccessor = (BetterDisplayInfoAccessor)this.getClass().getDeclaredField("betterDisplayInfo").get(this);
+            parent = (AdvancementWidgetInterface)this.getClass().getDeclaredField("parent").get(this);
+        } catch (Exception ignored) {}
     }
 
     @WrapMethod(method = "drawConnectivity")
@@ -70,14 +77,14 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     @WrapMethod(method = "drawConnection")
-    private void renderLines(DrawContext context, @Coerce AdvancementWidgetInterface parent, int x, int y, boolean border, Operation<Void> original) {
+    private void drawLines(DrawContext context, @Coerce AdvancementWidgetInterface parent, int x, int y, boolean border, Operation<Void> original) {
         if (PlaneAdvancementsClient.getCurrentLineType() == LineType.DEFAULT) {
             original.call(context, parent, x, y, border);
             return;
         }
 
         if (parent != null) {
-            int innerColor = advancementProgress != null && advancementProgress.isDone() ? betterDisplayInfo.getCompletedLineColor() : betterDisplayInfo.getUnCompletedLineColor();
+            int innerColor = advancementProgress != null && advancementProgress.isDone() ? betterDisplayInfoAccessor.callGetCompletedLineColor() : betterDisplayInfoAccessor.callGetUnCompletedLineColor();
             AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.planeAdvancements$getX(), parent.planeAdvancements$getY(), border, innerColor);
         }
     }
@@ -128,7 +135,6 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
-        //noinspection EqualsBetweenInconvertibleTypes,SuspiciousMethodCalls
         return other.equals(parent) || children.contains(other);
     }
 

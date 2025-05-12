@@ -1,11 +1,15 @@
 package com.nettakrim.planeadvancements.mixin;
 
 import com.nettakrim.planeadvancements.*;
+import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
+import net.minecraft.advancement.PlacedAdvancement;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -13,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("UnresolvedMixinReference")
 @Pseudo
 @Mixin(targets = "betteradvancements.common.gui.BetterAdvancementTab", remap = false)
 public abstract class BetterAdvancementTabMixin implements AdvancementTabInterface {
@@ -28,7 +33,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
     @Shadow private int scrollX;
     @Shadow private int scrollY;
     
-    @Shadow @Final private BetterAdvancementWidget root;
+    @Unique private AdvancementWidgetInterface root;
 
     @Unique
     private int temperature = -1;
@@ -36,6 +41,13 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
     @Unique private int currentGridWidth;
+
+    @Inject(at = @At("TAIL"), method = "<init>")
+    private void init(MinecraftClient client, @Coerce Object screen, @Coerce Object type, int index, PlacedAdvancement root, AdvancementDisplay display, CallbackInfo ci) {
+        try {
+            this.root = (AdvancementWidgetInterface)this.getClass().getDeclaredField("root").get(this);
+        } catch (Exception ignored) {}
+    }
 
     @Inject(at = @At("HEAD"), method = "drawContents")
     private void render(DrawContext context, int left, int top, int width, int height, float zoom, CallbackInfo ci) {
@@ -115,7 +127,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @Override
     public AdvancementWidgetInterface planeAdvancements$getRoot() {
-        return (AdvancementWidgetInterface) root;
+        return root;
     }
 
     @Override

@@ -13,6 +13,7 @@
     "BetterAdvancementsScreenAccessor",
     "BetterAdvancementsScreenMixin",
     "BetterAdvancementTabMixin",
-    "BetterAdvancementWidgetMixin"
+    "BetterAdvancementWidgetMixin",
+    "BetterDisplayInfoAccessor"
   ]
 }

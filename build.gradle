@@ -27,6 +27,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	// Mixin Extras 0.5.0 needed for @Coerce in @WrapMethod
+	implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.5.0-rc.2"))
+	include("io.github.llamalad7:mixinextras-fabric:0.5.0-rc.2:slim")
 
 	modImplementation fileTree(dir: 'libs', include: '*.jar')
 }
