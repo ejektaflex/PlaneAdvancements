@@ -3,9 +3,7 @@ package com.nettakrim.planeadvancements;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.joml.Vector2f;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public interface AdvancementTabInterface {
     Iterator<AdvancementWidgetInterface> planeAdvancements$getWidgets();
@@ -86,9 +84,13 @@ public interface AdvancementTabInterface {
             }
         }
 
-        // settle clusters to what will be the left, this is better than just putting them there to begin with as it means bigger clusters will be further to what will be the right
+
         Vector2f mirror = new Vector2f(usedWidth+1, mask.size());
-        for (AdvancementCluster cluster : clusters.reversed()) {
+        Queue<AdvancementCluster> toSettle = new ArrayDeque<>(clusters.reversed());
+        // settle clusters to the left, this is better than just putting them there to begin with as it means bigger clusters will be further to the right
+        while (!toSettle.isEmpty()) {
+            AdvancementCluster cluster = toSettle.remove();
+
             //ignore overflowed clusters
             if (cluster.size.x > maxWidth) {
                 continue;
@@ -100,43 +102,45 @@ public interface AdvancementTabInterface {
             int startingFilter = ~getMask(cluster.size.x, position);
 
             while (true) {
-                // step forwards for a position that the cluster fits in
+                // step left for a position that the cluster fits in
                 position++;
 
                 int sizeMask = getMask(cluster.size.x, position);
 
-                boolean fits;
-                if (cluster.size.x + position > maxWidth) {
-                    fits = false;
+                boolean hit;
+                if (cluster.size.x + position > usedWidth) {
+                    hit = true;
                 } else {
-                    fits = true;
+                    hit = false;
                     for (int u = 0; u < cluster.size.y; u++) {
                         int index = y + u;
                         if ((mask.getInt(index) & startingFilter & sizeMask) != 0) {
-                            fits = false;
+                            hit = true;
+                            break;
                         }
                     }
                 }
 
                 // once collided, move to last free position
-                if (!fits) {
+                if (hit) {
                     position--;
+                    // if it didn't move, xy mirror cluster to get it into its final position
                     if (position == cluster.pos.x) {
+                        mirror.sub(cluster.pos, cluster.pos).sub(cluster.size.x, cluster.size.y);
                         break;
                     }
 
+                    // otherwise, update masks, then queue it to settle again, to resolve any complicated chains (this is rare to actually matter)
                     sizeMask = getMask(cluster.size.x, position);
                     for (int u = 0; u < cluster.size.y; u++) {
                         int index = y+u;
                         mask.set(index, (mask.getInt(index) & startingFilter) | sizeMask);
                     }
                     cluster.pos.x = position;
+                    toSettle.add(cluster);
                     break;
                 }
             }
-
-            // xy mirror everything, to get them to their final position
-            mirror.sub(cluster.pos, cluster.pos).sub(cluster.size.x, cluster.size.y);
         }
 
         // set root position, then add it to list, so it's position gets applied later
