@@ -162,15 +162,13 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
             maxY = Math.max(maxY, l);
         }
 
-        int paddingX = PlaneAdvancementsClient.treeType == TreeType.SPRING ? width/2 : 16;
-        int paddingY = PlaneAdvancementsClient.treeType == TreeType.SPRING ? height/2 : 16;
-        if (maxX - minX > width) {
-            minX -= paddingX;
-            maxX += paddingX;
-        }
-        if (maxY - minY > height) {
-            minY -= paddingY;
-            maxY += paddingY;
+        if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
+            minX -= width/2;
+            maxX += width/2;
+            minY -= height/2;
+            maxY += height/2;
+        } else if (maxX - minX > width) {
+            maxX += 4;
         }
     }
 

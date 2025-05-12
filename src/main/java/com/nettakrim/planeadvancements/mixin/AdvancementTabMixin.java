@@ -136,15 +136,13 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             maxPanY = Math.max(maxPanY, l);
         }
 
-        int paddingX = PlaneAdvancementsClient.treeType == TreeType.SPRING ? width/2 : 16;
-        int paddingY = PlaneAdvancementsClient.treeType == TreeType.SPRING ? height/2 : 16;
-        if (maxPanX - minPanX > width) {
-            minPanX -= paddingX;
-            maxPanX += paddingX;
-        }
-        if (maxPanY - minPanY > height) {
-            minPanY -= paddingY;
-            maxPanY += paddingY;
+        if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
+            minPanX -= width/2;
+            maxPanX += width/2;
+            minPanY -= height/2;
+            maxPanY += height/2;
+        } else if (maxPanX - minPanX > width) {
+            maxPanX += 4;
         }
 
         // min pan only works as 0, so if it does extend too far, everything needs to be offset to compensate
