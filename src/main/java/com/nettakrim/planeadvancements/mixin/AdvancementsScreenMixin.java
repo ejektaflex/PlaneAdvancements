@@ -75,17 +75,14 @@ public class AdvancementsScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "render")
     void render(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
-        PlaneAdvancementsClient.treeButton.render(context, mouseX, mouseY, tickDelta);
-        if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
-            PlaneAdvancementsClient.lineButton.render(context, mouseX, mouseY, tickDelta);
-            PlaneAdvancementsClient.repulsionSlider.render(context, mouseX, mouseY, tickDelta);
-        }
+        PlaneAdvancementsClient.renderUI(context, mouseX, mouseY, tickDelta);
     }
 
     @Inject(at = @At("TAIL"), method = "init")
     void init(CallbackInfo ci) {
         addSelectableChild(PlaneAdvancementsClient.treeButton);
-        addSelectableChild(PlaneAdvancementsClient.lineButton);
         addSelectableChild(PlaneAdvancementsClient.repulsionSlider);
+        addSelectableChild(PlaneAdvancementsClient.gridWidthSlider);
+        addSelectableChild(PlaneAdvancementsClient.lineButton);
     }
 }

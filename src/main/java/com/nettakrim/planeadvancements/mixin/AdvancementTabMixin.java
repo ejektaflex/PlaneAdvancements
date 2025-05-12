@@ -37,7 +37,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
-    @Unique private boolean calculatedGrid;
+    @Unique private int currentGridWidth;
 
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
@@ -45,11 +45,14 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             planeAdvancements$heatGraph();
         }
 
+        if (currentGridWidth != PlaneAdvancementsClient.gridWidth && PlaneAdvancementsClient.treeType == TreeType.GRID) {
+            planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
+            planeAdvancements$updateRange();
+            planeAdvancements$centerPan(117, 56);
+            currentGridWidth = PlaneAdvancementsClient.gridWidth;
+        }
+
         if (currentType != PlaneAdvancementsClient.treeType) {
-            if (!calculatedGrid && PlaneAdvancementsClient.treeType == TreeType.GRID) {
-                planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
-                calculatedGrid = true;
-            }
             planeAdvancements$updateRange();
             planeAdvancements$centerPan(117, 56);
         }

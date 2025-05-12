@@ -12,6 +12,7 @@ import net.fabricmc.api.ClientModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.data.DataProvider;
@@ -41,30 +42,25 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static TreeType treeType = TreeType.SPRING;
 	public static float repulsion = 0.1f;
     public static boolean angledLines = true;
+	public static int gridWidth = 10;
 
 	public static AdvancementWidgetInterface draggedWidget;
 
 	public static ButtonWidget treeButton;
 	public static ButtonWidget lineButton;
 	public static SliderWidget repulsionSlider;
+	public static SliderWidget gridWidthSlider;
 
 	@Override
 	public void onInitializeClient() {
 		loadConfig();
 
 		treeButton = ButtonWidget.builder(getTreeText(), (w) -> cycleTreeType()).dimensions(0,0,16,16).build();
-		lineButton = ButtonWidget.builder(getLineText(), (w) -> cycleLineType()).dimensions(16,0,16,16).build();
-		repulsionSlider = new SliderWidget(32, 0, 64, 16, getRepulsionText(), MathHelper.sqrt(repulsion)) {
-			@Override
-			protected void updateMessage() {
-				setMessage(getRepulsionText());
-			}
+		repulsionSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getRepulsionText, MathHelper.sqrt(repulsion), (v) -> repulsion = Math.max((float)(v * v), 0.01f));
+		gridWidthSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getGridWidthText, (gridWidth - 2) / 14d, (v) -> gridWidth = (int)Math.round(v*14 + 2));
+		lineButton = ButtonWidget.builder(getLineText(), (w) -> cycleLineType()).dimensions(80,0,16,16).build();
 
-			@Override
-			protected void applyValue() {
-				repulsion = Math.max((float)(value * value), 0.01f);
-			}
-		};
+		setUIActive();
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> saveConfig());
 	}
@@ -81,6 +77,10 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		return Text.translatable(MOD_ID+".repulsion", repulsion <= 0.01f ? "0.0" : String.valueOf(MathHelper.sqrt(repulsion)+0.01f).substring(0,3));
 	}
 
+	private static Text getGridWidthText() {
+		return Text.translatable(MOD_ID+".grid_width", gridWidth);
+	}
+
 	public static LineType getCurrentLineType() {
 		return treeType == TreeType.SPRING ? (angledLines ? LineType.ROTATED : LineType.SMART) : LineType.DEFAULT;
 	}
@@ -88,6 +88,8 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static void cycleTreeType() {
 		treeType = TreeType.values()[(treeType.ordinal()+1)%TreeType.values().length];
 		treeButton.setMessage(getTreeText());
+
+		setUIActive();
 	}
 
 	public static void cycleLineType() {
@@ -96,26 +98,44 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	}
 
 	public static boolean hoveredUI() {
-		return treeButton.isHovered() || lineButton.isHovered() || repulsionSlider.isHovered();
+		return treeButton.isHovered() || lineButton.isHovered() || repulsionSlider.isHovered() || gridWidthSlider.isHovered();
 	}
 
 	public static boolean selectedUI() {
-		return treeButton.isFocused() || lineButton.isFocused() || repulsionSlider.isFocused();
+		return treeButton.isFocused() || lineButton.isFocused() || repulsionSlider.isFocused() || gridWidthSlider.isFocused();
 	}
 
 	public static void clearUIHover() {
 		treeButton.setFocused(false);
 		lineButton.setFocused(false);
 		repulsionSlider.setFocused(false);
+		gridWidthSlider.setFocused(false);
+	}
+
+	public static void renderUI(DrawContext context, int mouseX, int mouseY, float tickDelta) {
+		treeButton.render(context, mouseX, mouseY, tickDelta);
+		if (treeType == TreeType.SPRING) {
+			lineButton.render(context, mouseX, mouseY, tickDelta);
+			repulsionSlider.render(context, mouseX, mouseY, tickDelta);
+		} if (treeType == TreeType.GRID) {
+			gridWidthSlider.render(context, mouseX, mouseY, tickDelta);
+		}
+	}
+
+	private static void setUIActive() {
+		lineButton.active = treeType == TreeType.SPRING;
+		repulsionSlider.active = treeType == TreeType.SPRING;
+		gridWidthSlider.active = treeType == TreeType.GRID;
 	}
 
 	private static final Codec<Data> dataCodec = RecordCodecBuilder.create((instance) -> instance.group(
 			Codec.INT.optionalFieldOf("treeType", 1).forGetter(Data::treeType),
 			Codec.FLOAT.optionalFieldOf("repulsion", 0.1f).forGetter(Data::repulsion),
-			Codec.BOOL.optionalFieldOf("angledLines", true).forGetter(Data::angledLines)
+			Codec.BOOL.optionalFieldOf("angledLines", true).forGetter(Data::angledLines),
+			Codec.INT.optionalFieldOf("gridWidth", 10).forGetter(Data::gridWidth)
 	).apply(instance, Data::new));
 
-	private record Data(int treeType, float repulsion, boolean angledLines) {}
+	private record Data(int treeType, float repulsion, boolean angledLines, int gridWidth) {}
 
 	private static void loadConfig() {
 		configDir = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID+".json");
@@ -125,10 +145,11 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		}
 
 		try {
-			Data data = dataCodec.parse(JsonOps.INSTANCE, new GsonBuilder().create().fromJson(Files.newBufferedReader(configDir), JsonElement.class)).result().orElse(new Data(treeType.ordinal(), 0.1f, true));
+			Data data = dataCodec.parse(JsonOps.INSTANCE, new GsonBuilder().create().fromJson(Files.newBufferedReader(configDir), JsonElement.class)).result().orElse(new Data(treeType.ordinal(), 0.1f, true, 10));
 			treeType = TreeType.values()[data.treeType];
 			repulsion = data.repulsion;
 			angledLines = data.angledLines;
+			gridWidth = data.gridWidth;
 		} catch (IOException e) {
 			LOGGER.info("Failed to load file from {} {}", configDir, e);
 		}
@@ -146,7 +167,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 				try {
 					jsonWriter.setSerializeNulls(false);
 					jsonWriter.setIndent("");
-					JsonHelper.writeSorted(jsonWriter, dataCodec.encodeStart(JsonOps.INSTANCE, new Data(treeType.ordinal(), repulsion, angledLines)).getOrThrow(), DataProvider.JSON_KEY_SORTING_COMPARATOR);
+					JsonHelper.writeSorted(jsonWriter, dataCodec.encodeStart(JsonOps.INSTANCE, new Data(treeType.ordinal(), repulsion, angledLines, gridWidth)).getOrThrow(), DataProvider.JSON_KEY_SORTING_COMPARATOR);
 				} catch (Throwable var9) {
 					try {
 						jsonWriter.close();

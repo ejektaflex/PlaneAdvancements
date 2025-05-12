@@ -36,7 +36,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
-    @Unique private boolean calculatedGrid;
+    @Unique private int currentGridWidth;
 
     @Inject(at = @At("HEAD"), method = "drawContents")
     private void render(DrawContext context, int left, int top, int width, int height, float zoom, CallbackInfo ci) {
@@ -46,11 +46,14 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
             planeAdvancements$centerPan(width, height);
         }
 
+        if (currentGridWidth != PlaneAdvancementsClient.gridWidth && PlaneAdvancementsClient.treeType == TreeType.GRID) {
+            planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
+            planeAdvancements$updateRange();
+            planeAdvancements$centerPan(width, height);
+            currentGridWidth = PlaneAdvancementsClient.gridWidth;
+        }
+
         if (currentType != PlaneAdvancementsClient.treeType) {
-            if (!calculatedGrid && PlaneAdvancementsClient.treeType == TreeType.GRID) {
-                planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
-                calculatedGrid = true;
-            }
             planeAdvancements$updateRange();
             planeAdvancements$centerPan(width, height);
         }

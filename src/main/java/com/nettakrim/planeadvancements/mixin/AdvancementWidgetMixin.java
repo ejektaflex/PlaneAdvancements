@@ -136,7 +136,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Override
     public void planeAdvancements$setGridPos(Vector2f pos) {
-        gridPos.add(pos);
+        defaultPos.add(pos, gridPos);
         planeAdvancements$updatePos();
 
         for (AdvancementWidget child : children) {

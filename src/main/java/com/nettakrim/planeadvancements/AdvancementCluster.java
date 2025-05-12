@@ -135,7 +135,7 @@ public class AdvancementCluster {
             return i == 0 ? Float.compare(b.size.x, a.size.x) : i;
         });
 
-        int maxWidth = 9;
+        int maxWidth = PlaneAdvancementsClient.gridWidth-1;
         int usedWidth = 0;
 
         IntArrayList mask = new IntArrayList();
@@ -146,11 +146,11 @@ public class AdvancementCluster {
             int search = (maxWidth - cluster.size.x) + 1;
 
             // if a cluster is too big, just let it overflow
-            if (search <= 0) {
+            if (search <= 1) {
                 cluster.pos.x = 1;
                 cluster.pos.y = mask.size();
                 for (int i = 0; i < cluster.size.y; i++) {
-                    mask.add(Integer.MAX_VALUE);
+                    mask.add(-1);
                 }
                 usedWidth = maxWidth;
                 continue;
@@ -189,7 +189,7 @@ public class AdvancementCluster {
             AdvancementCluster cluster = toSettle.remove();
 
             //ignore overflowed clusters
-            if (cluster.size.x > maxWidth) {
+            if (cluster.size.x >= maxWidth) {
                 continue;
             }
 
