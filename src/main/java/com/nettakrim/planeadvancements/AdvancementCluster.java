@@ -190,6 +190,7 @@ public class AdvancementCluster {
 
             //ignore overflowed clusters
             if (cluster.size.x >= maxWidth) {
+                cluster.pos.y = mirror.y - cluster.pos.y - cluster.size.y;
                 continue;
             }
 
