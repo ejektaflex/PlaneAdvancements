@@ -63,7 +63,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
         if (currentType != PlaneAdvancementsClient.treeType) {
             if (!calculatedGrid && PlaneAdvancementsClient.treeType == TreeType.GRID) {
-                planeAdvancements$arrangeIntoGrid();
+                planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
                 calculatedGrid = true;
             }
             planeAdvancements$updateRange();
