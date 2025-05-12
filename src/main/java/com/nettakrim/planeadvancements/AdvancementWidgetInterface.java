@@ -36,7 +36,7 @@ public interface AdvancementWidgetInterface {
     boolean planeAdvancements$isRoot();
 
     void planeAdvancements$setClusterRoot(boolean isClusterRoot);
-    boolean planeAdvancements$isClusterRoot();
+    boolean planeAdvancements$renderClusterLines();
 
     float springScale = 32f;
     float maxAttraction = springScale/2.5f;

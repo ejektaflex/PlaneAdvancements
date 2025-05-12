@@ -148,7 +148,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         planeAdvancements$updatePos();
 
         for (AdvancementWidgetInterface child : children) {
-            if (!child.planeAdvancements$isClusterRoot()) {
+            if (child.planeAdvancements$renderClusterLines()) {
                 child.planeAdvancements$setGridPos(pos);
             }
         }
@@ -165,8 +165,8 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     @Override
-    public boolean planeAdvancements$isClusterRoot() {
-        return isClusterRoot;
+    public boolean planeAdvancements$renderClusterLines() {
+        return !isClusterRoot;
     }
 
     @Override
