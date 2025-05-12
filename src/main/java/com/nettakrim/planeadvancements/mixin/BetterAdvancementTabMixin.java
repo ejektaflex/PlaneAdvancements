@@ -1,6 +1,5 @@
 package com.nettakrim.planeadvancements.mixin;
 
-import betteradvancements.common.gui.BetterAdvancementWidget;
 import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;

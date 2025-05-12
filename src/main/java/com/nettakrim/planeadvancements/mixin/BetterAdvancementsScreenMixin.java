@@ -1,7 +1,5 @@
 package com.nettakrim.planeadvancements.mixin;
 
-import betteradvancements.common.gui.BetterAdvancementTab;
-import betteradvancements.common.gui.BetterAdvancementsScreen;
 import com.nettakrim.planeadvancements.AdvancementTabInterface;
 import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
 import com.nettakrim.planeadvancements.PlaneAdvancementsClient;

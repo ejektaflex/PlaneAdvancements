@@ -1,8 +1,5 @@
 package com.nettakrim.planeadvancements.mixin;
 
-import betteradvancements.common.gui.BetterAdvancementTab;
-import betteradvancements.common.gui.BetterAdvancementWidget;
-import betteradvancements.common.gui.BetterAdvancementsScreen;
 import betteradvancements.common.advancements.BetterDisplayInfo;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -34,7 +31,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     private int y;
 
     @Shadow @Nullable
-    private BetterAdvancementWidget parent;
+    private BetterAdvancementWidgetMixin parent;
     @Shadow @Final private List<AdvancementWidgetInterface> children;
 
     @Shadow @Final private AdvancementDisplay displayInfo;
