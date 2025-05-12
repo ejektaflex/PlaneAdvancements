@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Mixin(AdvancementTab.class)
 public class AdvancementTabMixin implements AdvancementTabInterface {
-    @Shadow @Final private Map<AdvancementEntry, AdvancementWidget> widgets;
+    @Shadow @Final private Map<AdvancementEntry, AdvancementWidgetInterface> widgets;
 
     @Shadow private int minPanX;
     @Shadow private int maxPanX;
@@ -70,10 +70,9 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         // always update spring graph forces, so that it can settle while not visible
         int steps = MathHelper.ceil(MathHelper.sqrt(temperature /10f));
         for (int i = 0; i < steps; i++) {
-            for (AdvancementWidget widgetA : widgets.values()) {
-                AdvancementWidgetInterface ducky = (AdvancementWidgetInterface) widgetA;
-                for (AdvancementWidget widgetB : widgets.values()) {
-                    ducky.planeAdvancements$applySpringForce((AdvancementWidgetInterface) widgetB, 0.1f, PlaneAdvancementsClient.repulsion);
+            for (AdvancementWidgetInterface widgetA : widgets.values()) {
+                for (AdvancementWidgetInterface widgetB : widgets.values()) {
+                    widgetA.planeAdvancements$applySpringForce(widgetB, 0.1f, PlaneAdvancementsClient.repulsion);
                 }
             }
         }
@@ -83,8 +82,8 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             if (temperature%60 == 1) {
                 planeAdvancements$updateRange(117, 56);
             } else {
-                for (AdvancementWidget widget : widgets.values()) {
-                    ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
+                for (AdvancementWidgetInterface widget : widgets.values()) {
+                    widget.planeAdvancements$updatePos();
                 }
             }
         }
@@ -97,7 +96,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public Iterator<AdvancementWidgetInterface> planeAdvancements$getWidgets() {
-        return widgets.values().stream().map(w -> (AdvancementWidgetInterface)w).iterator();
+        return widgets.values().stream().iterator();
     }
 
     @Override
@@ -124,12 +123,12 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         minPanY = Integer.MAX_VALUE;
         maxPanY = Integer.MIN_VALUE;
 
-        for (AdvancementWidget widget : widgets.values()) {
-            ((AdvancementWidgetInterface)widget).planeAdvancements$updatePos();
+        for (AdvancementWidgetInterface widget : widgets.values()) {
+            widget.planeAdvancements$updatePos();
 
-            int i = widget.getX();
+            int i = widget.planeAdvancements$getX();
             int j = i + 28;
-            int k = widget.getY();
+            int k = widget.planeAdvancements$getY();
             int l = k + 27;
             minPanX = Math.min(minPanX, i);
             maxPanX = Math.max(maxPanX, j);
@@ -162,10 +161,9 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         maxPanY += offsetY;
         originX -= offsetX;
         originY -= offsetY;
-        for (AdvancementWidget widget : widgets.values()) {
-            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)widget;
-            ducky.planeAdvancements$getCurrentPos().add(offsetX, offsetY);
-            ducky.planeAdvancements$updatePos();
+        for (AdvancementWidgetInterface widget : widgets.values()) {
+            widget.planeAdvancements$getCurrentPos().add(offsetX, offsetY);
+            widget.planeAdvancements$updatePos();
         }
     }
 

@@ -70,7 +70,7 @@ public interface AdvancementWidgetInterface {
         }
     }
 
-    static void renderLines(DrawContext context, int x, int y, int startX, int startY, int endX, int endY, boolean border, int innerColor) {
+    static void renderCustomLines(DrawContext context, int x, int y, int startX, int startY, int endX, int endY, boolean border, int innerColor) {
         int offsetX = endX-startX;
         int offsetY = endY-startY;
 

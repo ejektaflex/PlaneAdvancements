@@ -61,7 +61,6 @@ public class AdvancementsScreenMixin extends Screen {
         if (PlaneAdvancementsClient.draggedWidget == null || PlaneAdvancementsClient.treeType != TreeType.SPRING) {
             if (PlaneAdvancementsClient.selectedUI()) {
                 cir.setReturnValue(super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY));
-                cir.cancel();
             }
             return;
         }
@@ -70,7 +69,6 @@ public class AdvancementsScreenMixin extends Screen {
         assert selectedTab != null;
         ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();
         cir.setReturnValue(true);
-        cir.cancel();
     }
 
     @Inject(at = @At("TAIL"), method = "render")

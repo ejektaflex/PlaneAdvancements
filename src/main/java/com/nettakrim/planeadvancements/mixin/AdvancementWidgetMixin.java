@@ -21,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(AdvancementWidget.class)
@@ -32,7 +31,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     private int y;
 
     @Shadow @Nullable private AdvancementWidget parent;
-    @Shadow @Final private List<AdvancementWidget> children;
+    @Shadow @Final private List<AdvancementWidgetInterface> children;
 
     @Shadow @Final private AdvancementDisplay display;
 
@@ -57,8 +56,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     void renderLines(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
         // remove root lines for grid mode
         if (isClusterRoot && PlaneAdvancementsClient.treeType == TreeType.GRID) {
-            for (AdvancementWidget advancementWidget : children) {
-                advancementWidget.renderLines(context, x, y, border);
+            for (AdvancementWidgetInterface advancementWidget : children) {
+                advancementWidget.planeAdvancements$renderLines(context, x, y, border);
             }
             return;
         }
@@ -69,11 +68,11 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
         }
 
         if (parent != null) {
-            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border, -1);
+            AdvancementWidgetInterface.renderCustomLines(context, x, y, this.x, this.y, parent.getX(), parent.getY(), border, -1);
         }
 
-        for (AdvancementWidget advancementWidget : children) {
-            advancementWidget.renderLines(context, x, y, border);
+        for (AdvancementWidgetInterface advancementWidget : children) {
+            advancementWidget.planeAdvancements$renderLines(context, x, y, border);
         }
     }
 
@@ -87,11 +86,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Override
     public List<AdvancementWidgetInterface> planeAdvancements$getChildren() {
-        ArrayList<AdvancementWidgetInterface> childList = new ArrayList<>(children.size());
-        for (AdvancementWidget child : children) {
-            childList.add((AdvancementWidgetInterface)child);
-        }
-        return childList;
+        return children;
     }
 
     @Override
@@ -127,7 +122,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     }
 
     public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
-        //noinspection EqualsBetweenInconvertibleTypes,SuspiciousMethodCalls
+        // noinspection EqualsBetweenInconvertibleTypes
         return other.equals(parent) || children.contains(other);
     }
 
@@ -141,10 +136,9 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
         defaultPos.add(pos, gridPos);
         planeAdvancements$updatePos();
 
-        for (AdvancementWidget child : children) {
-            AdvancementWidgetInterface ducky = (AdvancementWidgetInterface)child;
-            if (!ducky.planeAdvancements$isClusterRoot()) {
-                ducky.planeAdvancements$setGridPos(pos);
+        for (AdvancementWidgetInterface child : children) {
+            if (!child.planeAdvancements$isClusterRoot()) {
+                child.planeAdvancements$setGridPos(pos);
             }
         }
     }

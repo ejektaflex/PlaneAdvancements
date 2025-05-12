@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("UnresolvedMixinReference")
@@ -85,7 +84,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
         if (parent != null) {
             int innerColor = advancementProgress != null && advancementProgress.isDone() ? betterDisplayInfoAccessor.callGetCompletedLineColor() : betterDisplayInfoAccessor.callGetUnCompletedLineColor();
-            AdvancementWidgetInterface.renderLines(context, x, y, this.x, this.y, parent.planeAdvancements$getX(), parent.planeAdvancements$getY(), border, innerColor);
+            AdvancementWidgetInterface.renderCustomLines(context, x, y, this.x, this.y, parent.planeAdvancements$getX(), parent.planeAdvancements$getY(), border, innerColor);
         }
     }
 
@@ -99,7 +98,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Override
     public List<AdvancementWidgetInterface> planeAdvancements$getChildren() {
-        return new ArrayList<>(children);
+        return children;
     }
 
     @Override
