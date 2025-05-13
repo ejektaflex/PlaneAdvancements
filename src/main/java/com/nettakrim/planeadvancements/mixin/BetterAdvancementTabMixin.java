@@ -258,6 +258,9 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
             tabRoot.planeAdvancements$setParent(null);
         });
 
+        planeAdvancements$updateRange(117, 56);
+        planeAdvancements$centerPan(117, 56);
+
         planeAdvancements$heatGraph();
     }
 }

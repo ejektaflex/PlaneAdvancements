@@ -1,6 +1,5 @@
 package com.nettakrim.planeadvancements.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
@@ -12,7 +11,6 @@ import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -240,6 +238,9 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
             AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
             tabRoot.planeAdvancements$setParent(null);
         });
+
+        planeAdvancements$updateRange(117, 56);
+        planeAdvancements$centerPan(117, 56);
 
         planeAdvancements$heatGraph();
     }

@@ -6,5 +6,7 @@
   "planeadvancements.line.smart": "L",
   "planeadvancements.line.rotated": "\\",
   "planeadvancements.repulsion": "Spread %s",
-  "planeadvancements.grid_width": "Width %s"
+  "planeadvancements.grid_width": "Width %s",
+  "planeadvancements.merged": "A",
+  "planeadvancements.unmerged": "1"
 }

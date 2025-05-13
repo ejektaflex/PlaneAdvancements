@@ -77,7 +77,7 @@ public class AdvancementsScreenMixin extends Screen {
 
     @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "drawWindow")
     int hideTabs(int original) {
-        if (PlaneAdvancementsClient.merged) {
+        if (PlaneAdvancementsClient.isMerged()) {
             return 0;
         }
         return original;
@@ -85,7 +85,7 @@ public class AdvancementsScreenMixin extends Screen {
 
     @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "drawWidgetTooltip")
     int hideTooltip(int original) {
-        if (PlaneAdvancementsClient.merged) {
+        if (PlaneAdvancementsClient.isMerged()) {
             return 0;
         }
         return original;
@@ -94,7 +94,7 @@ public class AdvancementsScreenMixin extends Screen {
     @Inject(at = @At("HEAD"), method = "render")
     void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         if(selectedTab != null) {
-            if (PlaneAdvancementsClient.merged) {
+            if (PlaneAdvancementsClient.isMerged()) {
                 ((AdvancementTabInterface)selectedTab).planeAdvancements$setMerged(tabs.values());
             } else {
                 ((AdvancementTabInterface)selectedTab).planeAdvancements$clearMerged(tabs.values());
@@ -113,5 +113,6 @@ public class AdvancementsScreenMixin extends Screen {
         addSelectableChild(PlaneAdvancementsClient.repulsionSlider);
         addSelectableChild(PlaneAdvancementsClient.gridWidthSlider);
         addSelectableChild(PlaneAdvancementsClient.lineButton);
+        addSelectableChild(PlaneAdvancementsClient.mergedButton);
     }
 }
