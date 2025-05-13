@@ -1,12 +1,11 @@
 package com.nettakrim.planeadvancements;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.joml.Vector2f;
+import net.minecraft.advancement.AdvancementEntry;
 
 import java.util.*;
 
 public interface AdvancementTabInterface {
-    Iterator<AdvancementWidgetInterface> planeAdvancements$getWidgets();
+    Map<AdvancementEntry, AdvancementWidgetInterface> planeAdvancements$getWidgets();
     AdvancementWidgetInterface planeAdvancements$getRoot();
 
     double planeAdvancements$getPanX();
@@ -16,4 +15,7 @@ public interface AdvancementTabInterface {
 
     void planeAdvancements$heatGraph();
     void planeAdvancements$applyClusters(List<AdvancementCluster> clusters);
+
+    void planeAdvancements$setMerged(Collection<AdvancementTabInterface> tabs);
+    void planeAdvancements$clearMerged(Collection<AdvancementTabInterface> tabs);
 }

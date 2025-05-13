@@ -4,20 +4,18 @@ import com.nettakrim.planeadvancements.AdvancementTabInterface;
 import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
 import com.nettakrim.planeadvancements.PlaneAdvancementsClient;
 import com.nettakrim.planeadvancements.TreeType;
+import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Iterator;
+import java.util.Map;
 
 @SuppressWarnings("UnresolvedMixinReference")
 @Pseudo
@@ -29,6 +27,9 @@ public class BetterAdvancementsScreenMixin extends Screen {
     @Shadow private static int SIDE;
     @Shadow private static int TOP;
     @Shadow private static int PADDING;
+
+    @Shadow @Final
+    private Map<AdvancementEntry, AdvancementTabInterface> tabs;
 
     protected BetterAdvancementsScreenMixin(Text title) {
         super(title);
@@ -56,8 +57,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
         int x = MathHelper.floor(mouseX - left - PADDING);
         int y = MathHelper.floor(mouseY - top - 2*PADDING);
 
-        for (Iterator<AdvancementWidgetInterface> it = selectedTab.planeAdvancements$getWidgets(); it.hasNext();) {
-            AdvancementWidgetInterface widget = it.next();
+        for (AdvancementWidgetInterface widget : selectedTab.planeAdvancements$getWidgets().values()) {
             if (widget.planeAdvancements$isHovering(panX, panY, x, y)) {
                 PlaneAdvancementsClient.draggedWidget = widget;
                 return;
@@ -92,6 +92,18 @@ public class BetterAdvancementsScreenMixin extends Screen {
     @Inject(at = @At("TAIL"), method = {"render", "method_25394"}, remap = true)
     void render(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         PlaneAdvancementsClient.renderUI(context, mouseX, mouseY, tickDelta);
+    }
+
+    @Inject(at = @At("HEAD"), method = {"render", "method_25394"}, remap = true)
+    void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
+        AdvancementTabInterface selectedTab = getSelectedTab();
+        if(selectedTab != null) {
+            if (PlaneAdvancementsClient.merged) {
+                selectedTab.planeAdvancements$setMerged(tabs.values());
+            } else {
+                selectedTab.planeAdvancements$clearMerged(tabs.values());
+            }
+        }
     }
 
     @Inject(at = @At("TAIL"), method = {"init", "method_25426"}, remap = true)

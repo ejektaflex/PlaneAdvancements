@@ -1,6 +1,7 @@
 package com.nettakrim.planeadvancements;
 
 import net.minecraft.advancement.AdvancementDisplay;
+import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
@@ -31,6 +32,7 @@ public interface AdvancementWidgetInterface {
     boolean planeAdvancements$isConnected(AdvancementWidgetInterface other);
 
     AdvancementDisplay planeAdvancements$getDisplay();
+    PlacedAdvancement planeAdvancements$getPlaced();
 
     void planeAdvancements$setGridPos(Vector2f pos);
     boolean planeAdvancements$isRoot();
@@ -116,4 +118,7 @@ public interface AdvancementWidgetInterface {
     int planeAdvancements$getX();
     int planeAdvancements$getY();
     void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border);
+
+    void planeAdvancements$setParent(AdvancementWidgetInterface widget);
+    void planeAdvancements$addChild(AdvancementWidgetInterface widget);
 }

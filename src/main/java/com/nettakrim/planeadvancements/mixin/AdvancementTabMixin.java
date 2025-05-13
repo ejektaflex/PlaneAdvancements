@@ -1,26 +1,34 @@
 package com.nettakrim.planeadvancements.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import com.nettakrim.planeadvancements.*;
+import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
+import net.minecraft.advancement.PlacedAdvancement;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
 import net.minecraft.util.math.MathHelper;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Mixin(AdvancementTab.class)
 public class AdvancementTabMixin implements AdvancementTabInterface {
-    @Shadow @Final private Map<AdvancementEntry, AdvancementWidgetInterface> widgets;
+    @Shadow @Final @Mutable
+    private Map<AdvancementEntry, AdvancementWidgetInterface> widgets;
+
+    @Shadow @Final @Mutable private AdvancementWidget rootWidget;
+    @Shadow @Final @Mutable private PlacedAdvancement root;
+    @Shadow @Final @Mutable private AdvancementDisplay display;
 
     @Shadow private int minPanX;
     @Shadow private int maxPanX;
@@ -31,13 +39,15 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Shadow private double originY;
 
     @Shadow private boolean initialized;
-    @Shadow @Final private AdvancementWidget rootWidget;
 
     @Unique private int temperature;
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
     @Unique private int currentGridWidth;
+
+    @Unique private AdvancementWidget rootBackup = null;
+    @Unique private Map<AdvancementEntry, AdvancementWidgetInterface> widgetsBackup = null;
 
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
@@ -95,8 +105,8 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     }
 
     @Override
-    public Iterator<AdvancementWidgetInterface> planeAdvancements$getWidgets() {
-        return widgets.values().stream().iterator();
+    public Map<AdvancementEntry, AdvancementWidgetInterface> planeAdvancements$getWidgets() {
+        return widgets;
     }
 
     @Override
@@ -176,5 +186,61 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         for (AdvancementCluster cluster : clusters) {
             cluster.applyPosition(28, 27);
         }
+    }
+
+    @Override
+    public void planeAdvancements$setMerged(Collection<AdvancementTabInterface> tabs) {
+        if (widgetsBackup != null) {
+            return;
+        }
+
+        widgetsBackup = widgets;
+        widgets = new HashMap<>(widgetsBackup);
+        PlacedAdvancement placedAdvancement = new PlacedAdvancement(PlaneAdvancementsClient.mergedEntry, null);
+        AdvancementWidget newRoot = new AdvancementWidget((AdvancementTab)(Object)this, MinecraftClient.getInstance(), placedAdvancement, PlaneAdvancementsClient.mergedDisplay);
+        //noinspection DataFlowIssue
+        AdvancementWidgetInterface newRootInterface = (AdvancementWidgetInterface)newRoot;
+
+        tabs.forEach(tab -> {
+            AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
+            tabRoot.planeAdvancements$setParent(newRootInterface);
+
+            newRootInterface.planeAdvancements$addChild(tabRoot);
+            placedAdvancement.addChild(tabRoot.planeAdvancements$getPlaced());
+
+            widgets.putAll(tab.planeAdvancements$getWidgets());
+        });
+        widgets.put(PlaneAdvancementsClient.mergedEntry, newRootInterface);
+
+        rootBackup = rootWidget;
+        rootWidget = newRoot;
+        display = PlaneAdvancementsClient.mergedDisplay;
+        root = placedAdvancement;
+
+        planeAdvancements$updateRange(117, 56);
+        planeAdvancements$centerPan(117, 56);
+
+        planeAdvancements$heatGraph();
+    }
+
+    @Override
+    public void planeAdvancements$clearMerged(Collection<AdvancementTabInterface> tabs) {
+        if (widgetsBackup == null) {
+            return;
+        }
+
+        widgets = widgetsBackup;
+        widgetsBackup = null;
+
+        rootWidget = rootBackup;
+        display = ((AdvancementWidgetInterface)rootWidget).planeAdvancements$getDisplay();
+        root = ((AdvancementWidgetInterface)rootWidget).planeAdvancements$getPlaced();
+
+        tabs.forEach(tab -> {
+            AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
+            tabRoot.planeAdvancements$setParent(null);
+        });
+
+        planeAdvancements$heatGraph();
     }
 }

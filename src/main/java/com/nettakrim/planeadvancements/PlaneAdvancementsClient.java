@@ -12,13 +12,15 @@ import net.fabricmc.api.ClientModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.advancement.Advancement;
+import net.minecraft.advancement.*;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.DataWriter;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -34,6 +36,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class PlaneAdvancementsClient implements ClientModInitializer {
@@ -58,6 +61,10 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static Map<Advancement, TreePosition> positions = new HashMap<>();
 
+	public static Advancement mergedAdvancement;
+	public static AdvancementDisplay mergedDisplay;
+	public static AdvancementEntry mergedEntry;
+
 	@Override
 	public void onInitializeClient() {
 		loadConfig();
@@ -70,6 +77,10 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		setUIActive();
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> saveConfig());
+
+		mergedDisplay = new AdvancementDisplay(ItemStack.EMPTY, Text.literal("title"), Text.literal("description"), Optional.of(Identifier.ofVanilla("textures/gui/advancements/backgrounds/adventure.png")), AdvancementFrame.CHALLENGE, false, false, false);
+		mergedAdvancement = new Advancement(Optional.empty(), Optional.of(mergedDisplay), AdvancementRewards.NONE, Map.of(), AdvancementRequirements.EMPTY, false);
+		mergedEntry = new AdvancementEntry(Identifier.of(PlaneAdvancementsClient.MOD_ID, "merged"), mergedAdvancement);
 	}
 
 	private static Text getTreeText() {
@@ -93,7 +104,12 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	}
 
 	public static void cycleTreeType() {
-		treeType = TreeType.values()[(treeType.ordinal()+1)%TreeType.values().length];
+		if (treeType == TreeType.SPRING && !merged) {
+			merged = true;
+		} else {
+			treeType = TreeType.values()[(treeType.ordinal() + 1) % TreeType.values().length];
+			merged = false;
+		}
 		treeButton.setMessage(getTreeText());
 
 		setUIActive();

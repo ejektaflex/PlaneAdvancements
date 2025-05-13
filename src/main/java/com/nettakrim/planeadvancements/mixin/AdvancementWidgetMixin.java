@@ -31,6 +31,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Shadow @Final private List<AdvancementWidgetInterface> children;
 
     @Shadow @Final private AdvancementDisplay display;
+    @Shadow @Final private PlacedAdvancement advancement;
 
     @Unique Vector2f defaultPos;
     @Unique Vector2f gridPos;
@@ -41,6 +42,8 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Shadow public abstract boolean shouldRender(int originX, int originY, int mouseX, int mouseY);
 
     @Shadow public abstract void renderLines(DrawContext context, int x, int y, boolean border);
+
+    @Shadow @Final private int width;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
@@ -129,6 +132,11 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     }
 
     @Override
+    public PlacedAdvancement planeAdvancements$getPlaced() {
+        return advancement;
+    }
+
+    @Override
     public void planeAdvancements$setGridPos(Vector2f pos) {
         defaultPos.add(pos, gridPos);
         planeAdvancements$updatePos();
@@ -168,5 +176,15 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Override
     public void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border) {
         renderLines(context, x, y, border);
+    }
+
+    @Override
+    public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
+        parent = (AdvancementWidget)widget;
+    }
+
+    @Override
+    public void planeAdvancements$addChild(AdvancementWidgetInterface widget) {
+        children.add(widget);
     }
 }

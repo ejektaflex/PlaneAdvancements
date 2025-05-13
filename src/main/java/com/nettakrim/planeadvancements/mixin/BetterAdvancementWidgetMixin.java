@@ -34,6 +34,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Shadow @Final private List<AdvancementWidgetInterface> children;
 
     @Shadow @Final private AdvancementDisplay displayInfo;
+    @Shadow @Final private PlacedAdvancement advancementNode;
 
     @Unique Vector2f defaultPos;
     @Unique Vector2f gridPos;
@@ -143,6 +144,11 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     @Override
+    public PlacedAdvancement planeAdvancements$getPlaced() {
+        return advancementNode;
+    }
+
+    @Override
     public void planeAdvancements$setGridPos(Vector2f pos) {
         defaultPos.add(pos, gridPos);
         planeAdvancements$updatePos();
@@ -182,5 +188,17 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Override
     public void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border) {
         drawConnectivity(context, x, y, border);
+    }
+
+    @Override
+    public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
+        try {
+            this.getClass().getDeclaredField("parent").set(this, widget);
+        } catch (Exception ignored) {}
+    }
+
+    @Override
+    public void planeAdvancements$addChild(AdvancementWidgetInterface widget) {
+        children.add(widget);
     }
 }

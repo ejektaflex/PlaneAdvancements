@@ -1,6 +1,8 @@
 package com.nettakrim.planeadvancements.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.nettakrim.planeadvancements.*;
+import net.minecraft.advancement.*;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
@@ -8,6 +10,7 @@ import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,11 +18,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Iterator;
+import java.util.Map;
 
 @Mixin(AdvancementsScreen.class)
 public class AdvancementsScreenMixin extends Screen {
     @Shadow @Nullable private AdvancementTab selectedTab;
+
+    @Shadow @Final private Map<AdvancementEntry, AdvancementTabInterface> tabs;
 
     protected AdvancementsScreenMixin(Text title) {
         super(title);
@@ -39,8 +44,7 @@ public class AdvancementsScreenMixin extends Screen {
         int x = MathHelper.floor(mouseX-((this.width - 252) >> 1)-9);
         int y = MathHelper.floor(mouseY-((this.height - 140) >> 1)-18);
 
-        for (Iterator<AdvancementWidgetInterface> it = tab.planeAdvancements$getWidgets(); it.hasNext();) {
-            AdvancementWidgetInterface widget = it.next();
+        for (AdvancementWidgetInterface widget : tab.planeAdvancements$getWidgets().values()) {
             if (widget.planeAdvancements$isHovering(panX, panY, x, y)) {
                 PlaneAdvancementsClient.draggedWidget = widget;
                 return;
@@ -69,6 +73,33 @@ public class AdvancementsScreenMixin extends Screen {
         assert selectedTab != null;
         ((AdvancementTabInterface)selectedTab).planeAdvancements$heatGraph();
         cir.setReturnValue(true);
+    }
+
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "drawWindow")
+    int hideTabs(int original) {
+        if (PlaneAdvancementsClient.merged) {
+            return 0;
+        }
+        return original;
+    }
+
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "drawWidgetTooltip")
+    int hideTooltip(int original) {
+        if (PlaneAdvancementsClient.merged) {
+            return 0;
+        }
+        return original;
+    }
+
+    @Inject(at = @At("HEAD"), method = "render")
+    void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
+        if(selectedTab != null) {
+            if (PlaneAdvancementsClient.merged) {
+                ((AdvancementTabInterface)selectedTab).planeAdvancements$setMerged(tabs.values());
+            } else {
+                ((AdvancementTabInterface)selectedTab).planeAdvancements$clearMerged(tabs.values());
+            }
+        }
     }
 
     @Inject(at = @At("TAIL"), method = "render")
