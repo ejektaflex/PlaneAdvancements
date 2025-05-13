@@ -43,8 +43,6 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @Shadow public abstract void renderLines(DrawContext context, int x, int y, boolean border);
 
-    @Shadow @Final private int width;
-
     @Inject(at = @At("TAIL"), method = "<init>")
     void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
