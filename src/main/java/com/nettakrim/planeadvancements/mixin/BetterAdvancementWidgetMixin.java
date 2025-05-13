@@ -1,5 +1,6 @@
 package com.nettakrim.planeadvancements.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -9,6 +10,7 @@ import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -59,7 +61,6 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         try {
             //noinspection ReferenceToMixin
             betterDisplayInfoAccessor = (BetterDisplayInfoAccessor)this.getClass().getDeclaredField("betterDisplayInfo").get(this);
-            parent = (AdvancementWidgetInterface)this.getClass().getDeclaredField("parent").get(this);
         } catch (Exception ignored) {}
     }
 
@@ -95,6 +96,21 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
             return PlaneAdvancementsClient.draggedWidget == this;
         }
         return original;
+    }
+
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementObtainedStatus;getFrameTexture(Lnet/minecraft/advancement/AdvancementFrame;)Lnet/minecraft/util/Identifier;"), method = {"draw","drawHover"})
+    private Identifier replaceMergeRoot(Identifier original) {
+        if (PlaneAdvancementsClient.isMerged() && parent == null) {
+            return Identifier.of(PlaneAdvancementsClient.MOD_ID,"merged");
+        }
+        return original;
+    }
+
+    @Inject(at = @At("TAIL"), method = "attachToParent")
+    private void setParent(CallbackInfo ci) {
+        try {
+            parent = (AdvancementWidgetInterface)this.getClass().getDeclaredField("parent").get(this);
+        } catch (Exception ignored) {}
     }
 
     @Override
@@ -194,6 +210,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
         try {
             this.getClass().getDeclaredField("parent").set(this, widget);
+            parent = widget;
         } catch (Exception ignored) {}
     }
 
