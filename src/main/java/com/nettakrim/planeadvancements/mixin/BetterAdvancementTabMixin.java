@@ -244,10 +244,10 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
         display = PlaneAdvancementsClient.mergedDisplay;
         rootNode = placedAdvancement;
 
-        planeAdvancements$updateRange(117, 56);
-        planeAdvancements$centerPan(117, 56);
-
         planeAdvancements$heatGraph();
+
+        // no width/height in this context, setting currentType will later cause pan centering
+        currentType = TreeType.DEFAULT;
     }
 
     @Override
@@ -268,9 +268,9 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
             tabRoot.planeAdvancements$setParent(null);
         });
 
-        planeAdvancements$updateRange(117, 56);
-        planeAdvancements$centerPan(117, 56);
-
         planeAdvancements$heatGraph();
+
+        // no width/height in this context, setting currentType will later cause pan centering
+        currentType = TreeType.DEFAULT;
     }
 }
