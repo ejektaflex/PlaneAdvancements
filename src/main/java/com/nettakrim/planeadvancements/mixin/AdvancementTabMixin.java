@@ -1,5 +1,6 @@
 package com.nettakrim.planeadvancements.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.nettakrim.planeadvancements.*;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
@@ -8,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -95,6 +97,14 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
                 }
             }
         }
+    }
+
+    @ModifyReturnValue(at = @At("RETURN"), method = "getTitle")
+    private Text setTitle(Text original) {
+        if (PlaneAdvancementsClient.isMerged()) {
+            return Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_tab");
+        }
+        return original;
     }
 
     @Override

@@ -80,7 +80,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> saveConfig());
 
-		mergedDisplay = new AdvancementDisplay(ItemStack.EMPTY, Text.literal("title"), Text.literal("description"), Optional.of(Identifier.ofVanilla("textures/gui/advancements/backgrounds/adventure.png")), AdvancementFrame.CHALLENGE, false, false, false);
+		mergedDisplay = new AdvancementDisplay(ItemStack.EMPTY, Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_title"), Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_description"), Optional.of(Identifier.ofVanilla("textures/gui/advancements/backgrounds/adventure.png")), AdvancementFrame.CHALLENGE, false, false, false);
 		mergedAdvancement = new Advancement(Optional.empty(), Optional.of(mergedDisplay), AdvancementRewards.NONE, Map.of(), AdvancementRequirements.EMPTY, false);
 		mergedEntry = new AdvancementEntry(Identifier.of(PlaneAdvancementsClient.MOD_ID, "merged"), mergedAdvancement);
 	}

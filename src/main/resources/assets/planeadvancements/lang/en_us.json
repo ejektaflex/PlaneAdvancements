@@ -8,5 +8,8 @@
   "planeadvancements.repulsion": "Spread %s",
   "planeadvancements.grid_width": "Width %s",
   "planeadvancements.merged": "A",
-  "planeadvancements.unmerged": "1"
+  "planeadvancements.unmerged": "1",
+  "planeadvancements.merged_tab": "Plane",
+  "planeadvancements.merged_title": "PLACEHOLDER TITLE",
+  "planeadvancements.merged_description": "PLACEHOLDER DESCRIPTION"
 }
