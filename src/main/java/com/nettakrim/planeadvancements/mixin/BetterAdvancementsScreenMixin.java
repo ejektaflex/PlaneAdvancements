@@ -1,5 +1,6 @@
 package com.nettakrim.planeadvancements.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.nettakrim.planeadvancements.AdvancementTabInterface;
 import com.nettakrim.planeadvancements.AdvancementWidgetInterface;
 import com.nettakrim.planeadvancements.PlaneAdvancementsClient;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 @SuppressWarnings("UnresolvedMixinReference")
@@ -30,6 +32,8 @@ public class BetterAdvancementsScreenMixin extends Screen {
 
     @Shadow @Final
     private Map<AdvancementEntry, AdvancementTabInterface> tabs;
+
+    @Unique private static Field selectedTabField;
 
     protected BetterAdvancementsScreenMixin(Text title) {
         super(title);
@@ -94,6 +98,22 @@ public class BetterAdvancementsScreenMixin extends Screen {
         PlaneAdvancementsClient.renderUI(context, mouseX, mouseY, tickDelta);
     }
 
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "renderWindow")
+    int hideTabs(int original) {
+        if (PlaneAdvancementsClient.merged) {
+            return 0;
+        }
+        return original;
+    }
+
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "renderToolTips")
+    int hideTooltip(int original) {
+        if (PlaneAdvancementsClient.merged) {
+            return 0;
+        }
+        return original;
+    }
+
     @Inject(at = @At("HEAD"), method = {"render", "method_25394"}, remap = true)
     void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         AdvancementTabInterface selectedTab = getSelectedTab();
@@ -117,7 +137,10 @@ public class BetterAdvancementsScreenMixin extends Screen {
     @Unique
     private AdvancementTabInterface getSelectedTab() {
         try {
-            return (AdvancementTabInterface)this.getClass().getDeclaredField("selectedTab").get(this);
+            if (selectedTabField == null) {
+                selectedTabField = this.getClass().getDeclaredField("selectedTab");
+            }
+            return (AdvancementTabInterface)selectedTabField.get(this);
         } catch (Exception ignored) {
             return null;
         }
