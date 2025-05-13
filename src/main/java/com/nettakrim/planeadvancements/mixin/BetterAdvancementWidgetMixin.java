@@ -119,6 +119,19 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     }
 
     @Override
+    public AdvancementWidgetInterface planeAdvancements$getParent() {
+        return parent;
+    }
+
+    @Override
+    public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
+        try {
+            this.getClass().getDeclaredField("parent").set(this, widget);
+            parent = widget;
+        } catch (Exception ignored) {}
+    }
+
+    @Override
     public void planeAdvancements$updatePos() {
         Vector2f pos = planeAdvancements$getCurrentPos();
 
@@ -148,10 +161,6 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Override
     public boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY) {
         return isMouseOver(originX, originY, mouseX, mouseY, BetterAdvancementsScreenAccessor.getZoom());
-    }
-
-    public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
-        return other.equals(parent) || children.contains(other);
     }
 
     @Override
@@ -204,18 +213,5 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
     @Override
     public void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border) {
         drawConnectivity(context, x, y, border);
-    }
-
-    @Override
-    public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
-        try {
-            this.getClass().getDeclaredField("parent").set(this, widget);
-            parent = widget;
-        } catch (Exception ignored) {}
-    }
-
-    @Override
-    public void planeAdvancements$addChild(AdvancementWidgetInterface widget) {
-        children.add(widget);
     }
 }

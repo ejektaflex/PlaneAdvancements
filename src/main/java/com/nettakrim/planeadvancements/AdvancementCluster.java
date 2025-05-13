@@ -281,4 +281,8 @@ public class AdvancementCluster {
     private static int getMask(int size, int position) {
         return ((1 << size)-1) * (1 << position);
     }
+
+    public static void initialiseTree(AdvancementWidgetInterface root) {
+        // TODO
+    }
 }

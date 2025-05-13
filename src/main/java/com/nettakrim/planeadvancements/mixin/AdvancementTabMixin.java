@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(AdvancementTab.class)
-public class AdvancementTabMixin implements AdvancementTabInterface {
+public abstract class AdvancementTabMixin implements AdvancementTabInterface {
     @Shadow @Final @Mutable
     private Map<AdvancementEntry, AdvancementWidgetInterface> widgets;
 
@@ -110,6 +110,9 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
     @Override
     public void planeAdvancements$heatGraph() {
         temperature = 1000;
+        if (PlaneAdvancementsClient.treeInitialised.add(root.getAdvancement())) {
+            AdvancementCluster.initialiseTree(planeAdvancements$getRoot());
+        }
     }
 
     @Override
@@ -212,10 +215,7 @@ public class AdvancementTabMixin implements AdvancementTabInterface {
         tabs.forEach(tab -> {
             AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
             tabRoot.planeAdvancements$setParent(newRootInterface);
-
-            newRootInterface.planeAdvancements$addChild(tabRoot);
-            placedAdvancement.addChild(tabRoot.planeAdvancements$getPlaced());
-
+            newRootInterface.planeAdvancements$getChildren().add(tabRoot);
             widgets.putAll(tab.planeAdvancements$getWidgets());
         });
         widgets.put(PlaneAdvancementsClient.mergedEntry, newRootInterface);

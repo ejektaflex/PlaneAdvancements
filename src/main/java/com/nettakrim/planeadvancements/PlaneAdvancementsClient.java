@@ -33,10 +33,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class PlaneAdvancementsClient implements ClientModInitializer {
@@ -61,6 +58,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static ButtonWidget mergedButton;
 
 	public static Map<Advancement, TreePosition> positions = new HashMap<>();
+	public static Set<Advancement> treeInitialised = new HashSet<>();
 
 	public static Advancement mergedAdvancement;
 	public static AdvancementDisplay mergedDisplay;

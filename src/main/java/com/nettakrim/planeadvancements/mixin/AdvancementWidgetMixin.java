@@ -98,6 +98,16 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     }
 
     @Override
+    public AdvancementWidgetInterface planeAdvancements$getParent() {
+        return (AdvancementWidgetInterface)parent;
+    }
+
+    @Override
+    public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
+        parent = (AdvancementWidget)widget;
+    }
+
+    @Override
     public void planeAdvancements$updatePos() {
         Vector2f pos = planeAdvancements$getCurrentPos();
 
@@ -127,11 +137,6 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Override
     public boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY) {
         return shouldRender((int)originX, (int)originY, mouseX, mouseY);
-    }
-
-    public boolean planeAdvancements$isConnected(AdvancementWidgetInterface other) {
-        // noinspection EqualsBetweenInconvertibleTypes
-        return other.equals(parent) || children.contains(other);
     }
 
     @Override
@@ -184,15 +189,5 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     @Override
     public void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border) {
         renderLines(context, x, y, border);
-    }
-
-    @Override
-    public void planeAdvancements$setParent(AdvancementWidgetInterface widget) {
-        parent = (AdvancementWidget)widget;
-    }
-
-    @Override
-    public void planeAdvancements$addChild(AdvancementWidgetInterface widget) {
-        children.add(widget);
     }
 }

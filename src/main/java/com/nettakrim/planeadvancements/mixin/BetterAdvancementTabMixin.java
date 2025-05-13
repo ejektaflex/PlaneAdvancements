@@ -144,6 +144,9 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
     @Override
     public void planeAdvancements$heatGraph() {
         temperature = 1000;
+        if (PlaneAdvancementsClient.treeInitialised.add(root.planeAdvancements$getPlaced().getAdvancement())) {
+            AdvancementCluster.initialiseTree(planeAdvancements$getRoot());
+        }
     }
 
     @Override
@@ -231,10 +234,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
         tabs.forEach(tab -> {
             AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
             tabRoot.planeAdvancements$setParent(newRootInterface);
-
-            newRootInterface.planeAdvancements$addChild(tabRoot);
-            placedAdvancement.addChild(tabRoot.planeAdvancements$getPlaced());
-
+            newRootInterface.planeAdvancements$getChildren().add(tabRoot);
             widgets.putAll(tab.planeAdvancements$getWidgets());
         });
         widgets.put(PlaneAdvancementsClient.mergedEntry, newRootInterface);

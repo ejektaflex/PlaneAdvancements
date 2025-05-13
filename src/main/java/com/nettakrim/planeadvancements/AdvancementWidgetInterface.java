@@ -13,6 +13,8 @@ import java.util.List;
 
 public interface AdvancementWidgetInterface {
     List<AdvancementWidgetInterface> planeAdvancements$getChildren();
+    AdvancementWidgetInterface planeAdvancements$getParent();
+    void planeAdvancements$setParent(AdvancementWidgetInterface widget);
 
     default Vector2f planeAdvancements$getCurrentPos() {
         return switch (PlaneAdvancementsClient.treeType) {
@@ -28,8 +30,6 @@ public interface AdvancementWidgetInterface {
     Vector2f planeAdvancements$getGridPos();
 
     boolean planeAdvancements$isHovering(double originX, double originY, int mouseX, int mouseY);
-
-    boolean planeAdvancements$isConnected(AdvancementWidgetInterface other);
 
     AdvancementDisplay planeAdvancements$getDisplay();
     PlacedAdvancement planeAdvancements$getPlaced();
@@ -58,7 +58,7 @@ public interface AdvancementWidgetInterface {
 
         direction.sub(other.planeAdvancements$getTreePos());
 
-        if (planeAdvancements$isConnected(other) && distance > 1) {
+        if ((planeAdvancements$getParent() == other || other.planeAdvancements$getParent() == this) && distance > 1) {
             direction.normalize(distance*-attraction);
         } else {
             direction.normalize(repulsion/Math.max(distance*distance, 0.01f));
@@ -118,7 +118,4 @@ public interface AdvancementWidgetInterface {
     int planeAdvancements$getX();
     int planeAdvancements$getY();
     void planeAdvancements$renderLines(DrawContext context, int x, int y, boolean border);
-
-    void planeAdvancements$setParent(AdvancementWidgetInterface widget);
-    void planeAdvancements$addChild(AdvancementWidgetInterface widget);
 }
