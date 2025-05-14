@@ -52,7 +52,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
 
     @Shadow public abstract void drawConnectivity(DrawContext context, int x, int y, boolean border);
 
-    @Inject(at = @At("TAIL"), method = "<init>")
+    @Inject(at = @At("TAIL"), method = "<init>", remap = true)
     void initPos(@Coerce AdvancementTabInterface tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
@@ -64,7 +64,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         } catch (Exception ignored) {}
     }
 
-    @WrapMethod(method = "drawConnectivity")
+    @WrapMethod(method = "drawConnectivity", remap = true)
     private void removeGridRoots(DrawContext context, int x, int y, boolean border, Operation<Void> original) {
         // remove root lines for grid mode
         if (isClusterRoot && PlaneAdvancementsClient.treeType == TreeType.GRID) {
@@ -77,7 +77,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         original.call(context, x, y, border);
     }
 
-    @WrapMethod(method = "drawConnection")
+    @WrapMethod(method = "drawConnection", remap = true)
     private void drawLines(DrawContext context, @Coerce AdvancementWidgetInterface parent, int x, int y, boolean border, Operation<Void> original) {
         if (PlaneAdvancementsClient.getCurrentLineType() == LineType.DEFAULT) {
             original.call(context, parent, x, y, border);
@@ -90,7 +90,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         }
     }
 
-    @ModifyReturnValue(at = @At("RETURN"), method = "isMouseOver")
+    @ModifyReturnValue(at = @At("RETURN"), method = "isMouseOver", remap = true)
     private boolean forceTooltipIfDragged(boolean original) {
         if (PlaneAdvancementsClient.draggedWidget != null) {
             return PlaneAdvancementsClient.draggedWidget == this;
@@ -98,7 +98,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         return original;
     }
 
-    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementObtainedStatus;getFrameTexture(Lnet/minecraft/advancement/AdvancementFrame;)Lnet/minecraft/util/Identifier;"), method = {"draw","drawHover"})
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementObtainedStatus;getFrameTexture(Lnet/minecraft/advancement/AdvancementFrame;)Lnet/minecraft/util/Identifier;"), method = {"draw","drawHover"}, remap = true)
     private Identifier replaceMergeRoot(Identifier original) {
         if (PlaneAdvancementsClient.isMergedAndSpring() && parent == null) {
             return Identifier.of(PlaneAdvancementsClient.MOD_ID,"merged");
@@ -106,7 +106,7 @@ public abstract class BetterAdvancementWidgetMixin implements AdvancementWidgetI
         return original;
     }
 
-    @Inject(at = @At("TAIL"), method = "attachToParent")
+    @Inject(at = @At("TAIL"), method = "attachToParent", remap = true)
     private void setParent(CallbackInfo ci) {
         try {
             parent = (AdvancementWidgetInterface)this.getClass().getDeclaredField("parent").get(this);

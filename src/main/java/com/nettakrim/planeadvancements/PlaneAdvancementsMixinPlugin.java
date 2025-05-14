@@ -21,10 +21,7 @@ public class PlaneAdvancementsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.startsWith("com.nettakrim.plane_advancements.mixin.Better")) {
-            return FabricLoader.getInstance().isModLoaded("betteradvancements");
-        }
-        return true;
+        return mixinClassName.startsWith("com.nettakrim.planeadvancements.mixin.Better") == FabricLoader.getInstance().isModLoaded("betteradvancements");
     }
 
     @Override

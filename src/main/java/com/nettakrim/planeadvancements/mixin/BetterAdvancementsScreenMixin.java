@@ -98,7 +98,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
         PlaneAdvancementsClient.renderUI(context, mouseX, mouseY, tickDelta);
     }
 
-    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "renderWindow")
+    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "renderWindow", remap = true)
     int hideTabs(int original) {
         if (PlaneAdvancementsClient.isMergedAndSpring()) {
             return 0;
