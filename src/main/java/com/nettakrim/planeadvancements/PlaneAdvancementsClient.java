@@ -151,6 +151,10 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		return merged && treeType == TreeType.SPRING;
 	}
 
+	public static int getTemperature() {
+		return merged && treeType == TreeType.SPRING ? 1500 : 1000;
+	}
+
 	private static final Codec<Data> dataCodec = RecordCodecBuilder.create((instance) -> instance.group(
 			Codec.INT.optionalFieldOf("treeType", 1).forGetter(Data::treeType),
 			Codec.FLOAT.optionalFieldOf("repulsion", 0.1f).forGetter(Data::repulsion),

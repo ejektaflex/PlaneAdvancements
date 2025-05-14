@@ -131,7 +131,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public void planeAdvancements$heatGraph() {
-        temperature = 1000;
+        temperature = PlaneAdvancementsClient.getTemperature();
     }
 
     @Override
