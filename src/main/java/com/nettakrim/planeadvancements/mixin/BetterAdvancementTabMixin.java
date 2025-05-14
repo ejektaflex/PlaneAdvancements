@@ -135,7 +135,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @ModifyReturnValue(at = @At("RETURN"), method = "getTitle")
     private Text setTitle(Text original) {
-        if (PlaneAdvancementsClient.isMerged()) {
+        if (PlaneAdvancementsClient.isMergedAndSpring()) {
             return Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_tab_better");
         }
         return original;
@@ -143,7 +143,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
 
     @ModifyReturnValue(at = @At("RETURN"), method = "isMouseOver")
     private boolean hideTab(boolean original) {
-        return original && !PlaneAdvancementsClient.isMerged();
+        return original && !PlaneAdvancementsClient.isMergedAndSpring();
     }
 
     @Override

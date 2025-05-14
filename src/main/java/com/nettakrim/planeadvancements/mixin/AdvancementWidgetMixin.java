@@ -86,7 +86,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
 
     @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/advancement/AdvancementObtainedStatus;getFrameTexture(Lnet/minecraft/advancement/AdvancementFrame;)Lnet/minecraft/util/Identifier;"), method = {"renderWidgets","drawTooltip"})
     private Identifier replaceMergeRoot(Identifier original) {
-        if (PlaneAdvancementsClient.isMerged() && parent == null) {
+        if (PlaneAdvancementsClient.isMergedAndSpring() && parent == null) {
             return Identifier.of(PlaneAdvancementsClient.MOD_ID,"merged");
         }
         return original;

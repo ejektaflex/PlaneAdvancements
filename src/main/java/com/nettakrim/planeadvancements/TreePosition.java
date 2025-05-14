@@ -12,6 +12,6 @@ public class TreePosition {
     public Vector2f globalPosition;
 
     public Vector2f getCurrentPosition() {
-        return PlaneAdvancementsClient.isMerged() ? globalPosition : tabPosition;
+        return PlaneAdvancementsClient.isMergedAndSpring() ? globalPosition : tabPosition;
     }
 }

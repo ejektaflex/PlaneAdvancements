@@ -46,8 +46,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static float repulsion = 0.1f;
     public static boolean angledLines = true;
 	public static int gridWidth = 10;
-
-	private static boolean merged = false;
+	public static boolean merged = false;
 
 	public static AdvancementWidgetInterface draggedWidget;
 
@@ -158,7 +157,7 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		gridWidthSlider.active = treeType == TreeType.GRID;
 	}
 
-	public static boolean isMerged() {
+	public static boolean isMergedAndSpring() {
 		return merged && treeType == TreeType.SPRING;
 	}
 

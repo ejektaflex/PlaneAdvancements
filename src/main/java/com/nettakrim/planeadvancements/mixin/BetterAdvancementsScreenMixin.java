@@ -100,7 +100,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
 
     @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "renderWindow")
     int hideTabs(int original) {
-        if (PlaneAdvancementsClient.isMerged()) {
+        if (PlaneAdvancementsClient.isMergedAndSpring()) {
             return 0;
         }
         return original;
@@ -110,7 +110,7 @@ public class BetterAdvancementsScreenMixin extends Screen {
     void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         AdvancementTabInterface selectedTab = getSelectedTab();
         if(selectedTab != null) {
-            if (PlaneAdvancementsClient.isMerged()) {
+            if (PlaneAdvancementsClient.isMergedAndSpring()) {
                 selectedTab.planeAdvancements$setMerged(tabs.values());
             } else {
                 selectedTab.planeAdvancements$clearMerged(tabs.values());
