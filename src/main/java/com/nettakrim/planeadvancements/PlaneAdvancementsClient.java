@@ -50,11 +50,11 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static AdvancementWidgetInterface draggedWidget;
 
-	public static final ButtonWidget treeButton = ButtonWidget.builder(getTreeText(), (w) -> cycleTreeType()).dimensions(0,0,16,16).build();
-	public static final ButtonWidget lineButton = ButtonWidget.builder(getLineText(), (w) -> cycleLineType()).dimensions(80,0,16,16).build();
-	public static final SliderWidget repulsionSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getRepulsionText, MathHelper.sqrt(repulsion), (v) -> repulsion = Math.max((float)(v * v), 0.01f));
-	public static final SliderWidget gridWidthSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getGridWidthText, (gridWidth - 2) / 14d, (v) -> gridWidth = (int)Math.round(v*14 + 2));
-	public static final ButtonWidget mergedButton = ButtonWidget.builder(getMergedText(), (w) -> cycleMerged()).dimensions(96,0,16,16).build();
+	public static ButtonWidget treeButton;
+	public static ButtonWidget lineButton;
+	public static SliderWidget repulsionSlider;
+	public static SliderWidget gridWidthSlider;
+	public static ButtonWidget mergedButton;
 
 	public static final Map<Advancement, TreePosition> positions = new HashMap<>();
 
@@ -68,6 +68,12 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		loadConfig();
 		ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> saveConfig());
+
+		treeButton = ButtonWidget.builder(getTreeText(), (w) -> cycleTreeType()).dimensions(0,0,16,16).build();
+		lineButton = ButtonWidget.builder(getLineText(), (w) -> cycleLineType()).dimensions(80,0,16,16).build();
+		repulsionSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getRepulsionText, MathHelper.sqrt(repulsion), (v) -> repulsion = Math.max((float)(v * v), 0.01f));
+		gridWidthSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getGridWidthText, (gridWidth - 2) / 14d, (v) -> gridWidth = (int)Math.round(v*14 + 2));
+		mergedButton = ButtonWidget.builder(getMergedText(), (w) -> cycleMerged()).dimensions(96,0,16,16).build();
 
 		setUIActive();
 	}
