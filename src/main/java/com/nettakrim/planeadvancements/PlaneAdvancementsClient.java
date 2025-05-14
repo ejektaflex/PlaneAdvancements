@@ -50,36 +50,25 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static AdvancementWidgetInterface draggedWidget;
 
-	public static ButtonWidget treeButton;
-	public static ButtonWidget lineButton;
-	public static SliderWidget repulsionSlider;
-	public static SliderWidget gridWidthSlider;
-	public static ButtonWidget mergedButton;
+	public static final ButtonWidget treeButton = ButtonWidget.builder(getTreeText(), (w) -> cycleTreeType()).dimensions(0,0,16,16).build();
+	public static final ButtonWidget lineButton = ButtonWidget.builder(getLineText(), (w) -> cycleLineType()).dimensions(80,0,16,16).build();
+	public static final SliderWidget repulsionSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getRepulsionText, MathHelper.sqrt(repulsion), (v) -> repulsion = Math.max((float)(v * v), 0.01f));
+	public static final SliderWidget gridWidthSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getGridWidthText, (gridWidth - 2) / 14d, (v) -> gridWidth = (int)Math.round(v*14 + 2));
+	public static final ButtonWidget mergedButton = ButtonWidget.builder(getMergedText(), (w) -> cycleMerged()).dimensions(96,0,16,16).build();
 
-	public static Map<Advancement, TreePosition> positions = new HashMap<>();
-	public static Set<Advancement> treeInitialised = new HashSet<>();
+	public static final Map<Advancement, TreePosition> positions = new HashMap<>();
+	public static final Set<Advancement> treeInitialised = new HashSet<>();
 
-	public static Advancement mergedAdvancement;
-	public static AdvancementDisplay mergedDisplay;
-	public static AdvancementEntry mergedEntry;
+	public static final AdvancementDisplay mergedDisplay = new AdvancementDisplay(ItemStack.EMPTY, Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_title"), Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_description"), Optional.of(Identifier.of(MOD_ID,"textures/merged_background.png")), AdvancementFrame.CHALLENGE, false, false, false);
+	public static final Advancement mergedAdvancement = new Advancement(Optional.empty(), Optional.of(mergedDisplay), AdvancementRewards.NONE, Map.of(), AdvancementRequirements.EMPTY, false);
+	public static final AdvancementEntry mergedEntry = new AdvancementEntry(Identifier.of(PlaneAdvancementsClient.MOD_ID, "merged"), mergedAdvancement);
 
 	@Override
 	public void onInitializeClient() {
 		loadConfig();
-
-		treeButton = ButtonWidget.builder(getTreeText(), (w) -> cycleTreeType()).dimensions(0,0,16,16).build();
-		repulsionSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getRepulsionText, MathHelper.sqrt(repulsion), (v) -> repulsion = Math.max((float)(v * v), 0.01f));
-		gridWidthSlider = new CallableSlider(16, 0, 64, 16, PlaneAdvancementsClient::getGridWidthText, (gridWidth - 2) / 14d, (v) -> gridWidth = (int)Math.round(v*14 + 2));
-		lineButton = ButtonWidget.builder(getLineText(), (w) -> cycleLineType()).dimensions(80,0,16,16).build();
-		mergedButton = ButtonWidget.builder(getMergedText(), (w) -> cycleMerged()).dimensions(96,0,16,16).build();
-
-		setUIActive();
-
 		ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> saveConfig());
 
-		mergedDisplay = new AdvancementDisplay(ItemStack.EMPTY, Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_title"), Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_description"), Optional.of(Identifier.of(MOD_ID,"textures/merged_background.png")), AdvancementFrame.CHALLENGE, false, false, false);
-		mergedAdvancement = new Advancement(Optional.empty(), Optional.of(mergedDisplay), AdvancementRewards.NONE, Map.of(), AdvancementRequirements.EMPTY, false);
-		mergedEntry = new AdvancementEntry(Identifier.of(PlaneAdvancementsClient.MOD_ID, "merged"), mergedAdvancement);
+		setUIActive();
 	}
 
 	private static Text getTreeText() {
