@@ -106,14 +106,6 @@ public class BetterAdvancementsScreenMixin extends Screen {
         return original;
     }
 
-    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "renderToolTips")
-    int hideTooltip(int original) {
-        if (PlaneAdvancementsClient.isMerged()) {
-            return 0;
-        }
-        return original;
-    }
-
     @Inject(at = @At("HEAD"), method = {"render", "method_25394"}, remap = true)
     void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         AdvancementTabInterface selectedTab = getSelectedTab();

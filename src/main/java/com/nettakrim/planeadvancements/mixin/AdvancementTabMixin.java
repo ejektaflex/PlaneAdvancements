@@ -107,6 +107,11 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
         return original;
     }
 
+    @ModifyReturnValue(at = @At("RETURN"), method = "isClickOnTab")
+    private boolean hideTab(boolean original) {
+        return original && !PlaneAdvancementsClient.isMerged();
+    }
+
     @Override
     public void planeAdvancements$heatGraph() {
         temperature = 1000;

@@ -9,7 +9,8 @@
   "planeadvancements.grid_width": "Width %s",
   "planeadvancements.merged": "A",
   "planeadvancements.unmerged": "1",
-  "planeadvancements.merged_tab": "Plane",
+  "planeadvancements.merged_tab": "Plane Advancements",
+  "planeadvancements.merged_tab_better": "Plane",
   "planeadvancements.merged_title": "Plane Advancements",
   "planeadvancements.merged_description": "All advancements on a single screen!"
 }

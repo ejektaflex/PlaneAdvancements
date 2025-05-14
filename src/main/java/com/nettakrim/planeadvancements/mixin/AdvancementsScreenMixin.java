@@ -83,14 +83,6 @@ public class AdvancementsScreenMixin extends Screen {
         return original;
     }
 
-    @ModifyExpressionValue(at = @At(value = "INVOKE", target = "Ljava/util/Map;size()I"), method = "drawWidgetTooltip")
-    int hideTooltip(int original) {
-        if (PlaneAdvancementsClient.isMerged()) {
-            return 0;
-        }
-        return original;
-    }
-
     @Inject(at = @At("HEAD"), method = "render")
     void merge(DrawContext context, int mouseX, int mouseY, float tickDelta, CallbackInfo ci) {
         if(selectedTab != null) {
