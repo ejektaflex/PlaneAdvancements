@@ -78,7 +78,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
         temperature--;
 
         // always update spring graph forces, so that it can settle while not visible
-        int steps = MathHelper.ceil(MathHelper.sqrt(temperature /10f));
+        int steps = MathHelper.ceil(MathHelper.sqrt(temperature/10f));
         for (int i = 0; i < steps; i++) {
             for (AdvancementWidgetInterface widgetA : widgets.values()) {
                 for (AdvancementWidgetInterface widgetB : widgets.values()) {

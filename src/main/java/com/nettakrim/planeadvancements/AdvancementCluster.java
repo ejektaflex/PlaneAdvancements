@@ -296,10 +296,9 @@ public class AdvancementCluster {
         while (!solve.isEmpty()) {
             TreeNode node = solve.pop();
             List<AdvancementWidgetInterface> children = node.widget.planeAdvancements$getChildren();
-            float childOffset = children.size() <= 1 ? 1 : 1f/(children.size()-1f);
             for (int i = 0; i < children.size(); i++) {
                 AdvancementWidgetInterface widget = children.get(i);
-                float t = MathHelper.HALF_PI*(i*childOffset - 0.5f) + node.angle;
+                float t = children.size() == 1 ? node.angle : MathHelper.HALF_PI*(i/(children.size()-1f) - 0.5f) + node.angle;
                 widget.planeAdvancements$getTreePos().set(MathHelper.cos(t)*64, MathHelper.sin(t)*64).add(node.widget.planeAdvancements$getTreePos());
                 solve.push(new TreeNode(widget, t));
             }
