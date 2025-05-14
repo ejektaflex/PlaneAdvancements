@@ -8,8 +8,8 @@ public class TreePosition {
         globalPosition = new Vector2f(x, y);
     }
 
-    public Vector2f tabPosition;
-    public Vector2f globalPosition;
+    public final Vector2f tabPosition;
+    public final Vector2f globalPosition;
 
     public Vector2f getCurrentPosition() {
         return PlaneAdvancementsClient.isMergedAndSpring() ? globalPosition : tabPosition;
