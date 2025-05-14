@@ -3,9 +3,9 @@ package com.nettakrim.planeadvancements;
 import org.joml.Vector2f;
 
 public class TreePosition {
-    public TreePosition(int x, int y) {
-        tabPosition = new Vector2f(x, y);
-        globalPosition = new Vector2f(x, y);
+    public TreePosition() {
+        tabPosition = new Vector2f(Float.NaN);
+        globalPosition = new Vector2f(Float.NaN);
     }
 
     public final Vector2f tabPosition;

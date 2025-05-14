@@ -283,27 +283,78 @@ public class AdvancementCluster {
     }
 
     public static void initialiseTree(AdvancementWidgetInterface root) {
-        root.planeAdvancements$getTreePos().set(0);
-        List<AdvancementWidgetInterface> rootChildren = root.planeAdvancements$getChildren();
-        Stack<TreeNode> solve = new Stack<>();
-        for (int i = 0; i < rootChildren.size(); i++) {
-            AdvancementWidgetInterface widget = rootChildren.get(i);
-            float t = (MathHelper.TAU * i) / rootChildren.size();
-            widget.planeAdvancements$getTreePos().set(MathHelper.cos(t)*64, MathHelper.sin(t)*64);
-            solve.push(new TreeNode(widget, t));
+        Vector2f rootPos = root.planeAdvancements$getTreePos();
+        if (!Float.isNaN(rootPos.x) && !Float.isNaN(rootPos.y)) {
+            // recursively search for uninitialised children
+            for (AdvancementWidgetInterface child : root.planeAdvancements$getChildren()) {
+                initialiseTree(child);
+            }
+            return;
         }
 
-        while (!solve.isEmpty()) {
-            TreeNode node = solve.pop();
-            List<AdvancementWidgetInterface> children = node.widget.planeAdvancements$getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                AdvancementWidgetInterface widget = children.get(i);
-                float t = children.size() == 1 ? node.angle : MathHelper.HALF_PI*(i/(children.size()-1f) - 0.5f) + node.angle;
-                widget.planeAdvancements$getTreePos().set(MathHelper.cos(t)*64, MathHelper.sin(t)*64).add(node.widget.planeAdvancements$getTreePos());
-                solve.push(new TreeNode(widget, t));
+        Stack<TreeNode> solve = new Stack<>();
+        float rootAngle = 0;
+        AdvancementWidgetInterface rootParent = root.planeAdvancements$getParent();
+        if (rootParent != null) {
+            AdvancementWidgetInterface validSibling = null;
+            int validSiblings = 0;
+            for (AdvancementWidgetInterface sibling : rootParent.planeAdvancements$getChildren()) {
+                Vector2f siblingPos = sibling.planeAdvancements$getTreePos();
+                if (!Float.isNaN(siblingPos.x) && !Float.isNaN(siblingPos.y)) {
+                    if (validSiblings == 0) {
+                        validSibling = sibling;
+                    }
+                    validSiblings++;
+                }
             }
+
+            if (validSiblings == 0) {
+                // if it's the only child, try place it in line
+                AdvancementWidgetInterface parentParent = rootParent.planeAdvancements$getParent();
+                if (parentParent != null) {
+                    Vector2f v = rootParent.planeAdvancements$getTreePos().sub(parentParent.planeAdvancements$getTreePos(), new Vector2f());
+                    rootAngle = (float) MathHelper.atan2(v.y, v.x);
+                } else {
+                    rootAngle = 0;
+                }
+            } else {
+                // otherwise, place it in what is probably a gap in its siblings
+                validSiblings++;
+                if (validSiblings%2 == 0) {
+                    validSiblings = -validSiblings;
+                }
+                Vector2f v = rootParent.planeAdvancements$getTreePos().sub(validSibling.planeAdvancements$getTreePos(), new Vector2f());
+                PlaneAdvancementsClient.LOGGER.info(validSiblings+" "+v);
+                rootAngle = (float) MathHelper.atan2(v.y, v.x) + MathHelper.PI/validSiblings;
+            }
+
+            root.planeAdvancements$getTreePos().set(MathHelper.cos(rootAngle)*64, MathHelper.sin(rootAngle)*64).add(rootParent.planeAdvancements$getTreePos());
+        } else {
+            root.planeAdvancements$getTreePos().set(0);
+        }
+        solve.push(new TreeNode(root, rootAngle));
+
+        while (!solve.isEmpty()) {
+            solve.pop().arcChildren(solve);
         }
     }
 
-    private record TreeNode(AdvancementWidgetInterface widget, float angle) {}
+    private record TreeNode(AdvancementWidgetInterface widget, float angle) {
+        public void arcChildren(Stack<TreeNode> solve) {
+            List<AdvancementWidgetInterface> children = widget.planeAdvancements$getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                AdvancementWidgetInterface child = children.get(i);
+                float t;
+                if (widget.planeAdvancements$getParent() == null) {
+                    t = (MathHelper.TAU * i) / children.size();
+                } else if (children.size() > 1) {
+                    t = angle + MathHelper.HALF_PI*(i/(children.size()-1f) - 0.5f);
+                } else {
+                    t = angle;
+                }
+                child.planeAdvancements$getTreePos().set(MathHelper.cos(t)*64, MathHelper.sin(t)*64).add(widget.planeAdvancements$getTreePos());
+                solve.push(new TreeNode(child, t));
+            }
+        }
+    }
 }

@@ -57,11 +57,12 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 	public static final ButtonWidget mergedButton = ButtonWidget.builder(getMergedText(), (w) -> cycleMerged()).dimensions(96,0,16,16).build();
 
 	public static final Map<Advancement, TreePosition> positions = new HashMap<>();
-	public static final Set<Advancement> treeInitialised = new HashSet<>();
 
 	public static final AdvancementDisplay mergedDisplay = new AdvancementDisplay(ItemStack.EMPTY, Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_title"), Text.translatable(PlaneAdvancementsClient.MOD_ID+".merged_description"), Optional.of(Identifier.of(MOD_ID,"textures/merged_background.png")), AdvancementFrame.CHALLENGE, false, false, false);
 	public static final Advancement mergedAdvancement = new Advancement(Optional.empty(), Optional.of(mergedDisplay), AdvancementRewards.NONE, Map.of(), AdvancementRequirements.EMPTY, false);
 	public static final AdvancementEntry mergedEntry = new AdvancementEntry(Identifier.of(PlaneAdvancementsClient.MOD_ID, "merged"), mergedAdvancement);
+
+	public static boolean mergedTreeNeedsUpdate;
 
 	@Override
 	public void onInitializeClient() {

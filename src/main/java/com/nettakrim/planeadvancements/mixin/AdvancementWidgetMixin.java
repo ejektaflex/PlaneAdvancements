@@ -49,7 +49,7 @@ public abstract class AdvancementWidgetMixin implements AdvancementWidgetInterfa
     void initPos(AdvancementTab tab, MinecraftClient client, PlacedAdvancement advancement, AdvancementDisplay display, CallbackInfo ci) {
         defaultPos = new Vector2f(x, y);
         gridPos = new Vector2f(x, y);
-        treePos = PlaneAdvancementsClient.positions.computeIfAbsent(advancement.getAdvancement(), k -> new TreePosition(x, y));
+        treePos = PlaneAdvancementsClient.positions.computeIfAbsent(advancement.getAdvancement(), k -> new TreePosition());
     }
 
     @WrapMethod(method = "renderLines")

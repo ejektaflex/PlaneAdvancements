@@ -45,6 +45,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
     @Unique private TreeType currentType = TreeType.DEFAULT;
     @Unique private float currentRepulsion = PlaneAdvancementsClient.repulsion;
     @Unique private int currentGridWidth;
+    @Unique private boolean treeNeedsUpdate;
 
     @Unique private AdvancementWidget rootBackup = null;
     @Unique private Map<AdvancementEntry, AdvancementWidgetInterface> widgetsBackup = null;
@@ -53,6 +54,16 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
     private void render(DrawContext context, int x, int y, CallbackInfo ci) {
         if (!initialized) {
             planeAdvancements$heatGraph();
+        }
+
+        if (PlaneAdvancementsClient.isMergedAndSpring()) {
+            if (PlaneAdvancementsClient.mergedTreeNeedsUpdate) {
+                AdvancementCluster.initialiseTree(planeAdvancements$getRoot());
+                PlaneAdvancementsClient.mergedTreeNeedsUpdate = false;
+            }
+        } else if (treeNeedsUpdate) {
+            AdvancementCluster.initialiseTree(planeAdvancements$getRoot());
+            treeNeedsUpdate = false;
         }
 
         if (currentGridWidth != PlaneAdvancementsClient.gridWidth && PlaneAdvancementsClient.treeType == TreeType.GRID) {
@@ -112,12 +123,15 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
         return original && !PlaneAdvancementsClient.isMergedAndSpring();
     }
 
+    @Inject(at = @At("TAIL"), method = "addWidget")
+    private void widgetAdded(CallbackInfo callbackInfo) {
+        treeNeedsUpdate = true;
+        PlaneAdvancementsClient.mergedTreeNeedsUpdate = true;
+    }
+
     @Override
     public void planeAdvancements$heatGraph() {
         temperature = 1000;
-        if (PlaneAdvancementsClient.treeInitialised.add(root.getAdvancement())) {
-            AdvancementCluster.initialiseTree(planeAdvancements$getRoot());
-        }
     }
 
     @Override
