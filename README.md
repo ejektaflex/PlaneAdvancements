@@ -22,3 +22,7 @@ Show all advancements on a single screen!
 
 Use Plane Advancements with [Better Advancements](https://modrinth.com/mod/better-advancements) to get a bigger advancement window (as well as all the other cool things it does like showing progress and coloring lines)
 ![Use Better Advancements as well to get a bigger advancement window!](https://cdn.modrinth.com/data/V1smGrYI/images/fc0edab3f325c8bdb807202a31dd03ac46c833fa.png)
+
+It also works with [AdvancementsFullscreen](https://modrinth.com/mod/advancementsfullscreen), however it's spacing with the ui isn't quite as nice
+
+It currently does *not* work with [Paginated Advancements](https://modrinth.com/mod/paginatedadvancements)
