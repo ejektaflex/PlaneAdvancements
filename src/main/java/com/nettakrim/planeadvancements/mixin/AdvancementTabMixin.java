@@ -209,7 +209,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public void planeAdvancements$centerPan(int width, int height) {
-        if (PlaneAdvancementsClient.compatMode == CompatMode.FULLSCREEN) {
+        if (CompatMode.getCompatMode() == CompatMode.FULLSCREEN) {
             this.originX = (width - (maxPanX + minPanX)) >> 1;
             this.originY = (height - (maxPanY + minPanY)) >> 1;
         } else {
@@ -283,7 +283,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Unique
     private int planeAdvancements$getWidth() {
-        if (PlaneAdvancementsClient.compatMode == CompatMode.FULLSCREEN) {
+        if (CompatMode.getCompatMode() == CompatMode.FULLSCREEN) {
             return ((FullscreenInterface)screen).advancementsfullscreen$getWindowWidth(false);
         } else {
             return 117;
@@ -292,7 +292,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Unique
     private int planeAdvancements$getHeight() {
-        if (PlaneAdvancementsClient.compatMode == CompatMode.FULLSCREEN) {
+        if (CompatMode.getCompatMode() == CompatMode.FULLSCREEN) {
             return ((FullscreenInterface)screen).advancementsfullscreen$getWindowHeight(false);
         } else {
             return 56;

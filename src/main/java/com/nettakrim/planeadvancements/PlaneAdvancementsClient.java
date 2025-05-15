@@ -64,8 +64,6 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 
 	public static boolean mergedTreeNeedsUpdate;
 
-	public static CompatMode compatMode;
-
 	@Override
 	public void onInitializeClient() {
 		loadConfig();
@@ -78,17 +76,6 @@ public class PlaneAdvancementsClient implements ClientModInitializer {
 		mergedButton = ButtonWidget.builder(getMergedText(), (w) -> cycleMerged()).dimensions(96,0,16,16).build();
 
 		setUIActive();
-
-		if (FabricLoader.getInstance().isModLoaded("betteradvancements")) {
-			compatMode = CompatMode.BETTER;
-		} else if (FabricLoader.getInstance().isModLoaded("paginatedadvancements")) {
-			// TODO: compat with https://modrinth.com/mod/paginatedadvancements
-			compatMode = CompatMode.PAGINATED;
-		} else if (FabricLoader.getInstance().isModLoaded("advancementsfullscreen")) {
-			compatMode = CompatMode.FULLSCREEN;
-		} else {
-			compatMode = CompatMode.VANILLA;
-		}
 	}
 
 	private static Text getTreeText() {

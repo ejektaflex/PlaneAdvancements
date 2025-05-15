@@ -1,6 +1,5 @@
 package com.nettakrim.planeadvancements;
 
-import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -22,7 +21,11 @@ public class PlaneAdvancementsMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.contains("Advancement")) {
-            return mixinClassName.startsWith("com.nettakrim.planeadvancements.mixin.Better") == FabricLoader.getInstance().isModLoaded("betteradvancements");
+            return switch (CompatMode.getCompatMode()) {
+                case BETTER -> mixinClassName.startsWith("com.nettakrim.planeadvancements.mixin.Better");
+                case PAGINATED -> mixinClassName.startsWith("com.nettakrim.planeadvancements.mixin.Paginated");
+                default -> mixinClassName.startsWith("com.nettakrim.planeadvancements.mixin.Advancement");
+            };
         }
         return true;
     }
