@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Map;
 
 @Mixin(AdvancementsScreen.class)
-public class AdvancementsScreenMixin extends Screen {
+public abstract class AdvancementsScreenMixin extends Screen implements FullscreenInterface {
     @Shadow @Nullable private AdvancementTab selectedTab;
 
     @Shadow @Final private Map<AdvancementEntry, AdvancementTabInterface> tabs;
@@ -30,10 +30,14 @@ public class AdvancementsScreenMixin extends Screen {
         super(title);
     }
 
-    @Inject(at = @At("HEAD"), method = "mouseClicked")
+    @Inject(at = @At("HEAD"), method = "mouseClicked", cancellable = true)
     void click(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         if (selectedTab == null || button != 1) {
             PlaneAdvancementsClient.clearUIHover();
+            if (PlaneAdvancementsClient.hoveredUI()) {
+                super.mouseClicked(mouseX, mouseY, button);
+                cir.setReturnValue(null);
+            }
             return;
         }
         PlaneAdvancementsClient.draggedWidget = null;

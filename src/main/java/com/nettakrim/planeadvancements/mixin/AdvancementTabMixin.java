@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.advancement.AdvancementTab;
 import net.minecraft.client.gui.screen.advancement.AdvancementWidget;
+import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.*;
@@ -40,6 +41,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Shadow private boolean initialized;
 
+    @Shadow @Final private AdvancementsScreen screen;
     @Unique private int temperature;
 
     @Unique private TreeType currentType = TreeType.DEFAULT;
@@ -68,14 +70,14 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
         if (currentGridWidth != PlaneAdvancementsClient.gridWidth && PlaneAdvancementsClient.treeType == TreeType.GRID) {
             planeAdvancements$applyClusters(AdvancementCluster.getGridClusters(planeAdvancements$getRoot()));
-            planeAdvancements$updateRange(117, 56);
-            planeAdvancements$centerPan(117, 56);
+            planeAdvancements$updateRange(planeAdvancements$getWidth(), planeAdvancements$getHeight());
+            planeAdvancements$centerPan(planeAdvancements$getWidth(), planeAdvancements$getHeight());
             currentGridWidth = PlaneAdvancementsClient.gridWidth;
         }
 
         if (currentType != PlaneAdvancementsClient.treeType) {
-            planeAdvancements$updateRange(117, 56);
-            planeAdvancements$centerPan(117, 56);
+            planeAdvancements$updateRange(planeAdvancements$getWidth(), planeAdvancements$getHeight());
+            planeAdvancements$centerPan(planeAdvancements$getWidth(), planeAdvancements$getHeight());
         }
 
         if (currentRepulsion != PlaneAdvancementsClient.repulsion) {
@@ -101,7 +103,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
         if (PlaneAdvancementsClient.treeType == TreeType.SPRING) {
             // == 1 so it updates on the last update tick
             if (temperature%60 == 1) {
-                planeAdvancements$updateRange(117, 56);
+                planeAdvancements$updateRange(planeAdvancements$getWidth(), planeAdvancements$getHeight());
             } else {
                 for (AdvancementWidgetInterface widget : widgets.values()) {
                     widget.planeAdvancements$updatePos();
@@ -207,8 +209,13 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
 
     @Override
     public void planeAdvancements$centerPan(int width, int height) {
-        this.originX = width - ((this.maxPanX + this.minPanX) >> 1);
-        this.originY = height - ((this.maxPanY + this.minPanY) >> 1);
+        if (PlaneAdvancementsClient.compatMode == CompatMode.FULLSCREEN) {
+            this.originX = (width - (maxPanX + minPanX)) >> 1;
+            this.originY = (height - (maxPanY + minPanY)) >> 1;
+        } else {
+            this.originX = width - ((this.maxPanX + this.minPanX) >> 1);
+            this.originY = height - ((this.maxPanY + this.minPanY) >> 1);
+        }
     }
 
     @Override
@@ -244,8 +251,8 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
         display = PlaneAdvancementsClient.mergedDisplay;
         root = placedAdvancement;
 
-        planeAdvancements$updateRange(117, 56);
-        planeAdvancements$centerPan(117, 56);
+        planeAdvancements$updateRange(planeAdvancements$getWidth(), planeAdvancements$getHeight());
+        planeAdvancements$centerPan(planeAdvancements$getWidth(), planeAdvancements$getHeight());
 
         planeAdvancements$heatGraph();
     }
@@ -268,9 +275,27 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
             tabRoot.planeAdvancements$setParent(null);
         });
 
-        planeAdvancements$updateRange(117, 56);
-        planeAdvancements$centerPan(117, 56);
+        planeAdvancements$updateRange(planeAdvancements$getWidth(), planeAdvancements$getHeight());
+        planeAdvancements$centerPan(planeAdvancements$getWidth(), planeAdvancements$getHeight());
 
         planeAdvancements$heatGraph();
+    }
+
+    @Unique
+    private int planeAdvancements$getWidth() {
+        if (PlaneAdvancementsClient.compatMode == CompatMode.FULLSCREEN) {
+            return ((FullscreenInterface)screen).advancementsfullscreen$getWindowWidth(false);
+        } else {
+            return 117;
+        }
+    }
+
+    @Unique
+    private int planeAdvancements$getHeight() {
+        if (PlaneAdvancementsClient.compatMode == CompatMode.FULLSCREEN) {
+            return ((FullscreenInterface)screen).advancementsfullscreen$getWindowHeight(false);
+        } else {
+            return 56;
+        }
     }
 }
