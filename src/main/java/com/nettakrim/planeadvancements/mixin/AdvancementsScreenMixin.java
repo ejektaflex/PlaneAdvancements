@@ -45,8 +45,15 @@ public abstract class AdvancementsScreenMixin extends Screen implements Fullscre
 
         double panX = tab.planeAdvancements$getPanX();
         double panY = tab.planeAdvancements$getPanY();
-        int x = MathHelper.floor(mouseX-((this.width - 252) >> 1)-9);
-        int y = MathHelper.floor(mouseY-((this.height - 140) >> 1)-18);
+        int x;
+        int y;
+        if (CompatMode.getCompatMode() == CompatMode.FULLSCREEN) {
+            x = MathHelper.floor(mouseX-((this.width - advancementsfullscreen$getWindowWidth(false)) >> 1));
+            y = MathHelper.floor(mouseY-((this.height - advancementsfullscreen$getWindowHeight(false)) >> 1));
+        } else {
+            x = MathHelper.floor(mouseX-((this.width - 252) >> 1)-9);
+            y = MathHelper.floor(mouseY-((this.height - 140) >> 1)-18);
+        }
 
         for (AdvancementWidgetInterface widget : tab.planeAdvancements$getWidgets().values()) {
             if (widget.planeAdvancements$isHovering(panX, panY, x, y)) {
