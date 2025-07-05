@@ -273,6 +273,7 @@ public abstract class AdvancementTabMixin implements AdvancementTabInterface {
         tabs.forEach(tab -> {
             AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
             tabRoot.planeAdvancements$setParent(null);
+            ((AdvancementTabMixin)tab).currentType = TreeType.SPRING;
         });
 
         planeAdvancements$updateRange(planeAdvancements$getWidth(), planeAdvancements$getHeight());

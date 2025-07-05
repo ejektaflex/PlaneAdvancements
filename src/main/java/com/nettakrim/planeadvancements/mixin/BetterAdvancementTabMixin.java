@@ -285,6 +285,7 @@ public abstract class BetterAdvancementTabMixin implements AdvancementTabInterfa
         tabs.forEach(tab -> {
             AdvancementWidgetInterface tabRoot = tab.planeAdvancements$getRoot();
             tabRoot.planeAdvancements$setParent(null);
+            ((BetterAdvancementTabMixin)tab).currentType = TreeType.SPRING;
         });
 
         planeAdvancements$heatGraph();

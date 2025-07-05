@@ -3,10 +3,8 @@ package com.nettakrim.planeadvancements;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
-import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
+import org.joml.Matrix3x2fStack;
 import org.joml.Vector2f;
 
 import java.util.List;
@@ -76,12 +74,12 @@ public interface AdvancementWidgetInterface {
         int offsetX = endX-startX;
         int offsetY = endY-startY;
 
-        MatrixStack matrixStack = context.getMatrices();
-        matrixStack.push();
+        Matrix3x2fStack matrixStack = context.getMatrices();
+        matrixStack.pushMatrix();
 
         if (PlaneAdvancementsClient.getCurrentLineType() == LineType.ROTATED) {
-            matrixStack.translate(x+startX + 16.5, y+startY + 13.5, 0);
-            matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.atan2(offsetY, offsetX), 0, 0, 1)));
+            matrixStack.translate(x+startX + 16.5f, y+startY + 13.5f);
+            matrixStack.rotate((float)Math.atan2(offsetY, offsetX));
             int distance = MathHelper.floor(MathHelper.sqrt(offsetX*offsetX + offsetY*offsetY));
             if (border) {
                 context.drawHorizontalLine(0, distance, -1, -16777216);
@@ -90,7 +88,7 @@ public interface AdvancementWidgetInterface {
                 context.drawHorizontalLine(0, distance, 0, innerColor);
             }
         } else {
-            matrixStack.translate(x+startX + 15.5, y+startY + 12.5, 0);
+            matrixStack.translate(x+startX + 15.5f, y+startY + 12.5f);
             int absX = MathHelper.abs(offsetX);
             int absY = MathHelper.abs(offsetY);
             boolean isX = absX < absY;
@@ -112,7 +110,7 @@ public interface AdvancementWidgetInterface {
             }
         }
 
-        matrixStack.pop();
+        matrixStack.popMatrix();
     }
 
     int planeAdvancements$getX();
